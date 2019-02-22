@@ -47,12 +47,18 @@ import org.springframework.web.method.HandlerMethod;
  * @since 3.1
  */
 public class InvocableHandlerMethod extends HandlerMethod {
-
+	/**
+	 * 数据绑定工厂
+	 */
 	@Nullable
 	private WebDataBinderFactory dataBinderFactory;
-
+	/**
+	 * 参数解析器
+	 */
 	private HandlerMethodArgumentResolverComposite argumentResolvers = new HandlerMethodArgumentResolverComposite();
-
+	/**
+	 * 参数名称发现器
+	 */
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
 
@@ -124,15 +130,24 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 * @throws Exception raised if no suitable argument resolver can be found,
 	 * or if the method raised an exception
 	 */
+	/**
+	 * 根据请求执行方法，获取方法的返回值
+	 * @param request ServletWebRequest
+	 * @param mavContainer
+	 * @param providedArgs
+	 * @return
+	 * @throws Exception
+	 */
 	@Nullable
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//获取方法的参数数组对象
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Invoking '" + ClassUtils.getQualifiedMethodName(getMethod(), getBeanType()) +
 					"' with arguments " + Arrays.toString(args));
 		}
+		//根据参数数组调用真正方法
 		Object returnValue = doInvoke(args);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Method [" + ClassUtils.getQualifiedMethodName(getMethod(), getBeanType()) +
@@ -142,22 +157,31 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	}
 
 	/**
-	 * Get the method argument values for the current request.
+	 * 获取方法的参数数组对象
+	 * @param request
+	 * @param mavContainer
+	 * @param providedArgs
+	 * @return
+	 * @throws Exception
 	 */
 	private Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//方法参数数组
 		MethodParameter[] parameters = getMethodParameters();
 		Object[] args = new Object[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
 			MethodParameter parameter = parameters[i];
+			//设置参数名称发现器
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+			//调用@ExceptionHandler注解方法，不为空
 			args[i] = resolveProvidedArgument(parameter, providedArgs);
 			if (args[i] != null) {
 				continue;
 			}
+			//参数解析器是否支持该参数
 			if (this.argumentResolvers.supportsParameter(parameter)) {
 				try {
+					//参数解析器去解析参数
 					args[i] = this.argumentResolvers.resolveArgument(
 							parameter, mavContainer, request, this.dataBinderFactory);
 					continue;
@@ -184,14 +208,17 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	}
 
 	/**
-	 * Attempt to resolve a method parameter from the list of provided argument values.
+	 * 参数解析
 	 */
 	@Nullable
 	private Object resolveProvidedArgument(MethodParameter parameter, @Nullable Object... providedArgs) {
+		//正常的请求转发时，providedArgs为空
 		if (providedArgs == null) {
 			return null;
 		}
+		//调用@ExceptionHandler时，providedArgs不为空，有两个值拦截的 Exception和HandlerMethod
 		for (Object providedArg : providedArgs) {
+			//所以@ExceptionHandler方法可以有两个参数 Exception和HandlerMethod
 			if (parameter.getParameterType().isInstance(providedArg)) {
 				return providedArg;
 			}
@@ -201,7 +228,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
 
 	/**
-	 * Invoke the handler method with the given argument values.
+	 * 根据参数数组调用真正方法
+	 * @param args
+	 * @return
+	 * @throws Exception
 	 */
 	protected Object doInvoke(Object... args) throws Exception {
 		ReflectionUtils.makeAccessible(getBridgedMethod());

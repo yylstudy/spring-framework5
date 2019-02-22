@@ -76,7 +76,9 @@ public class HandlerMethod {
 	 * 桥接方法真正的方法对象
 	 */
 	private final Method bridgedMethod;
-
+	/**
+	 * 方法参数对象集合
+	 */
 	private final MethodParameter[] parameters;
 	/**
 	 * @ResponseStatus 注解的code值
@@ -142,6 +144,7 @@ public class HandlerMethod {
 		this.beanType = ClassUtils.getUserClass(beanType);
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+		//初始化MethodParameter
 		this.parameters = initMethodParameters();
 		//推断ResponseStatus
 		evaluateResponseStatus();
@@ -180,11 +183,15 @@ public class HandlerMethod {
 		this.resolvedFromHandlerMethod = handlerMethod;
 	}
 
-
+	/**
+	 * 初始化MethodParameter
+	 * @return
+	 */
 	private MethodParameter[] initMethodParameters() {
 		int count = this.bridgedMethod.getParameterCount();
 		MethodParameter[] result = new MethodParameter[count];
 		for (int i = 0; i < count; i++) {
+			//创建HandlerMethodParameter对象
 			HandlerMethodParameter parameter = new HandlerMethodParameter(i);
 			GenericTypeResolver.resolveParameterType(parameter, this.beanType);
 			result[i] = parameter;
@@ -274,7 +281,7 @@ public class HandlerMethod {
 	}
 
 	/**
-	 * Return the actual return value type.
+	 * 获取返回值类型
 	 */
 	public MethodParameter getReturnValueType(@Nullable Object returnValue) {
 		return new ReturnValueMethodParameter(returnValue);
@@ -406,10 +413,16 @@ public class HandlerMethod {
 	 * A MethodParameter for a HandlerMethod return type based on an actual return value.
 	 */
 	private class ReturnValueMethodParameter extends HandlerMethodParameter {
-
+		/**
+		 * 返回值对象
+		 */
 		@Nullable
 		private final Object returnValue;
 
+		/**
+		 * 创建ReturnValueMethodParameter
+		 * @param returnValue
+		 */
 		public ReturnValueMethodParameter(@Nullable Object returnValue) {
 			super(-1);
 			this.returnValue = returnValue;

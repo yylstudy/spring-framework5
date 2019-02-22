@@ -63,7 +63,7 @@ public class ControllerAdviceBean implements Ordered {
 
 	private final int order;
 	/**
-	 * @ControllerAdvice 注解的basePackages集合
+	 * @ControllerAdvice 拦截的bean的包名前缀
 	 */
 	private final Set<String> basePackages;
 	/**
@@ -176,22 +176,31 @@ public class ControllerAdviceBean implements Ordered {
 	 * @see org.springframework.web.bind.annotation.ControllerAdvice
 	 * @since 4.0
 	 */
+	/**
+	 * 是否匹配@ControllerAdvice类中@ExceptionHandler注解的可处理bean类型
+	 * @param beanType
+	 * @return
+	 */
 	public boolean isApplicableToBeanType(@Nullable Class<?> beanType) {
 		if (!hasSelectors()) {
 			return true;
 		}
 		else if (beanType != null) {
+
 			for (String basePackage : this.basePackages) {
+				//bean的包名是否匹配@ControllerAdvice中定义的包名
 				if (beanType.getName().startsWith(basePackage)) {
 					return true;
 				}
 			}
 			for (Class<?> clazz : this.assignableTypes) {
+				//bean的类型是否匹配@ControllerAdvice中定义的类型
 				if (ClassUtils.isAssignable(clazz, beanType)) {
 					return true;
 				}
 			}
 			for (Class<? extends Annotation> annotationClass : this.annotations) {
+				//bean上的注解是否匹配@ControllerAdvice中定义的注解
 				if (AnnotationUtils.findAnnotation(beanType, annotationClass) != null) {
 					return true;
 				}

@@ -152,20 +152,16 @@ public class UrlPathHelper {
 
 
 	/**
-	 * Return the mapping lookup path for the given request, within the current
-	 * servlet mapping if applicable, else within the web application.
-	 * <p>Detects include request URL if called within a RequestDispatcher include.
-	 * @param request current HTTP request
-	 * @return the lookup path
-	 * @see #getPathWithinApplication
-	 * @see #getPathWithinServletMapping
+	 * 获取url字符串
+	 * @param request
+	 * @return
 	 */
 	public String getLookupPathForRequest(HttpServletRequest request) {
 		// Always use full path within current servlet context?
 		if (this.alwaysUseFullPath) {
 			return getPathWithinApplication(request);
 		}
-		// Else, use path within current servlet mapping if applicable
+		//根据HttpServletRequest对象获取url
 		String rest = getPathWithinServletMapping(request);
 		if (!"".equals(rest)) {
 			return rest;
@@ -188,7 +184,13 @@ public class UrlPathHelper {
 	 * @param request current HTTP request
 	 * @return the path within the servlet mapping, or ""
 	 */
+	/**
+	 * 根据HttpServletRequest对象获取url
+	 * @param request
+	 * @return
+	 */
 	public String getPathWithinServletMapping(HttpServletRequest request) {
+		//
 		String pathWithinApp = getPathWithinApplication(request);
 		String servletPath = getServletPath(request);
 		String sanitizedPathWithinApp = getSanitizedPath(pathWithinApp);

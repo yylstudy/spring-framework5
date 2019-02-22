@@ -121,10 +121,12 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 
 
 	/**
-	 * Check whether this resolver is supposed to apply (i.e. if the supplied handler
-	 * matches any of the configured {@linkplain #setMappedHandlers handlers} or
-	 * {@linkplain #setMappedHandlerClasses handler classes}), and then delegate
-	 * to the {@link #doResolveException} template method.
+	 * 获取异常处理的ModelAndView
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @param handler HandlerMethod
+	 * @param ex 捕获的异常对象
+	 * @return
 	 */
 	@Override
 	@Nullable
@@ -136,6 +138,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 				this.logger.debug("Resolving exception from handler [" + handler + "]: " + ex);
 			}
 			prepareResponse(ex, response);
+			//处理真正的异常
 			ModelAndView result = doResolveException(request, response, handler, ex);
 			if (result != null) {
 				logException(ex, request);

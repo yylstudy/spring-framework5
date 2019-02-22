@@ -53,7 +53,9 @@ public class ModelAndViewContainer {
 
 	@Nullable
 	private Object view;
-
+	/**
+	 * 默认的模型
+	 */
 	private final ModelMap defaultModel = new BindingAwareModelMap();
 
 	@Nullable
@@ -69,7 +71,9 @@ public class ModelAndViewContainer {
 	private final Set<String> bindingDisabled = new HashSet<>(4);
 
 	private final SessionStatus sessionStatus = new SimpleSessionStatus();
-
+	/**
+	 * 请求状态是否已处理
+	 */
 	private boolean requestHandled = false;
 
 
@@ -136,6 +140,10 @@ public class ModelAndViewContainer {
 	 * The default model is used if {@code redirectModelScenario=false} or
 	 * there is no redirect model (i.e. RedirectAttributes was not declared as
 	 * a method argument) and {@code ignoreDefaultModelOnRedirect=false}.
+	 */
+	/**
+	 * 获取模型
+	 * @return
 	 */
 	public ModelMap getModel() {
 		if (useDefaultModel()) {

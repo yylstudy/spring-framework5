@@ -59,9 +59,13 @@ public class ServletRequestAttributes extends AbstractRequestAttributes {
 		immutableValueTypes.add(String.class);
 	}
 
-
+	/**
+	 * 请求的HttpServletRequest对象
+	 */
 	private final HttpServletRequest request;
-
+	/**
+	 * 请求的HttpServletResponse对象
+	 */
 	@Nullable
 	private HttpServletResponse response;
 

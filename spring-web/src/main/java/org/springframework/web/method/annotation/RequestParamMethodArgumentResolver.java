@@ -109,23 +109,15 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
 
 	/**
-	 * Supports the following:
-	 * <ul>
-	 * <li>@RequestParam-annotated method arguments.
-	 * This excludes {@link Map} params where the annotation doesn't
-	 * specify a name.	See {@link RequestParamMapMethodArgumentResolver}
-	 * instead for such params.
-	 * <li>Arguments of type {@link MultipartFile}
-	 * unless annotated with @{@link RequestPart}.
-	 * <li>Arguments of type {@code javax.servlet.http.Part}
-	 * unless annotated with @{@link RequestPart}.
-	 * <li>In default resolution mode, simple type arguments
-	 * even if not with @{@link RequestParam}.
-	 * </ul>
+	 * 是否支持@RequestParam注解的方法参数对象
+	 * @param parameter the method parameter to check
+	 * @return
 	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		//方法参数中包含@RequestParam对象
 		if (parameter.hasParameterAnnotation(RequestParam.class)) {
+			//参数类型是map
 			if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
 				RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
 				return (requestParam != null && StringUtils.hasText(requestParam.name()));
@@ -151,15 +143,30 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 		}
 	}
 
+	/**
+	 * 创建NamedValueInfo对象
+	 * @param parameter the method parameter
+	 * @return
+	 */
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
 		RequestParam ann = parameter.getParameterAnnotation(RequestParam.class);
+		//创建RequestParamNamedValueInfo对象
 		return (ann != null ? new RequestParamNamedValueInfo(ann) : new RequestParamNamedValueInfo());
 	}
 
+	/**
+	 * 解析参数值
+	 * @param name @RequestParam注解的name或者value方法的值
+	 * @param parameter
+	 * @param request the current request
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		//获取HttpServletRequest
 		HttpServletRequest servletRequest = request.getNativeRequest(HttpServletRequest.class);
 
 		if (servletRequest != null) {
@@ -178,6 +185,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 			}
 		}
 		if (arg == null) {
+			//从request中获取name值
 			String[] paramValues = request.getParameterValues(name);
 			if (paramValues != null) {
 				arg = (paramValues.length == 1 ? paramValues[0] : paramValues);
@@ -263,6 +271,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 		}
 
 		public RequestParamNamedValueInfo(RequestParam annotation) {
+			//创建RequestParamNamedValueInfo对象
 			super(annotation.name(), annotation.required(), annotation.defaultValue());
 		}
 	}

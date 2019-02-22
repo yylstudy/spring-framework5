@@ -68,7 +68,9 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 
 	@Nullable
 	private final BeanExpressionContext expressionContext;
-
+	/**
+	 * 方法参数对象和NamedValueInfo对象的缓存集合
+	 */
 	private final Map<MethodParameter, NamedValueInfo> namedValueInfoCache = new ConcurrentHashMap<>(256);
 
 
@@ -88,21 +90,29 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 				(beanFactory != null ? new BeanExpressionContext(beanFactory, new RequestScope()) : null);
 	}
 
-
+	/**
+	 * 解析参数
+	 * @param parameter 方法参数对象
+	 * @param mavContainer the ModelAndViewContainer for the current request
+	 * @param webRequest the current request
+	 * @param binderFactory 数据绑定对象
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	@Nullable
 	public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
-
+		//获取NamedValueInfo对象
 		NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
 		MethodParameter nestedParameter = parameter.nestedIfOptional();
-
+		//解析${}
 		Object resolvedName = resolveStringValue(namedValueInfo.name);
 		if (resolvedName == null) {
 			throw new IllegalArgumentException(
 					"Specified name must not resolve to null: [" + namedValueInfo.name + "]");
 		}
-
+		//解析参数值
 		Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);
 		if (arg == null) {
 			if (namedValueInfo.defaultValue != null) {
@@ -132,19 +142,22 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 
 			}
 		}
-
 		handleResolvedValue(arg, namedValueInfo.name, parameter, mavContainer, webRequest);
 
 		return arg;
 	}
 
 	/**
-	 * Obtain the named value for the given method parameter.
+	 * 获取NamedValueInfo对象
+	 * @param parameter
+	 * @return
 	 */
 	private NamedValueInfo getNamedValueInfo(MethodParameter parameter) {
 		NamedValueInfo namedValueInfo = this.namedValueInfoCache.get(parameter);
 		if (namedValueInfo == null) {
+			//创建NamedValueInfo对象
 			namedValueInfo = createNamedValueInfo(parameter);
+			//更新NamedValueInfo对象
 			namedValueInfo = updateNamedValueInfo(parameter, namedValueInfo);
 			this.namedValueInfoCache.put(parameter, namedValueInfo);
 		}
@@ -160,11 +173,16 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	protected abstract NamedValueInfo createNamedValueInfo(MethodParameter parameter);
 
 	/**
-	 * Create a new NamedValueInfo based on the given NamedValueInfo with sanitized values.
+	 * 更新NamedValueInfo对象
+	 * @param parameter
+	 * @param info
+	 * @return
 	 */
 	private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {
 		String name = info.name;
+		//如果注解的name方法值为空
 		if (info.name.isEmpty()) {
+			//取参数名称
 			name = parameter.getParameterName();
 			if (name == null) {
 				throw new IllegalArgumentException(
@@ -266,11 +284,17 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	 * Represents the information about a named value, including name, whether it's required and a default value.
 	 */
 	protected static class NamedValueInfo {
-
+		/**
+		 * 注解的name方法值
+		 */
 		private final String name;
-
+		/**
+		 * 是否必须
+		 */
 		private final boolean required;
-
+		/**
+		 * 注解的默认值
+		 */
 		@Nullable
 		private final String defaultValue;
 

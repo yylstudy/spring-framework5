@@ -91,10 +91,14 @@ public class MethodParameter {
 	 */
 	@Nullable
 	private volatile Type genericParameterType;
-
+	/**
+	 * 方法参数上的注解集合
+	 */
 	@Nullable
 	private volatile Annotation[] parameterAnnotations;
-
+	/**
+	 * 参数名称发现器 一般是DefaultParameterNameDiscoverer
+	 */
 	@Nullable
 	private volatile ParameterNameDiscoverer parameterNameDiscoverer;
 
@@ -536,11 +540,13 @@ public class MethodParameter {
 	}
 
 	/**
-	 * Return the annotations associated with the specific method/constructor parameter.
+	 * 获取方法参数的所有注解
+	 * @return
 	 */
 	public Annotation[] getParameterAnnotations() {
 		Annotation[] paramAnns = this.parameterAnnotations;
 		if (paramAnns == null) {
+			//获取方法或者构造器的参数的二维注解
 			Annotation[][] annotationArray = this.executable.getParameterAnnotations();
 			int index = this.parameterIndex;
 			if (this.executable instanceof Constructor &&
@@ -567,13 +573,15 @@ public class MethodParameter {
 	}
 
 	/**
-	 * Return the parameter annotation of the given type, if available.
-	 * @param annotationType the annotation type to look for
-	 * @return the annotation object, or {@code null} if not found
+	 * 方法参数中是否包含某个注解
+	 * @param annotationType
+	 * @param <A>
+	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public <A extends Annotation> A getParameterAnnotation(Class<A> annotationType) {
+		//获取方法参数的所有注解
 		Annotation[] anns = getParameterAnnotations();
 		for (Annotation ann : anns) {
 			if (annotationType.isInstance(ann)) {
@@ -603,11 +611,7 @@ public class MethodParameter {
 	}
 
 	/**
-	 * Return the name of the method/constructor parameter.
-	 * @return the parameter name (may be {@code null} if no
-	 * parameter name metadata is contained in the class file or no
-	 * {@link #initParameterNameDiscovery ParameterNameDiscoverer}
-	 * has been set to begin with)
+	 * 获取参数名称
 	 */
 	@Nullable
 	public String getParameterName() {

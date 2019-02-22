@@ -431,7 +431,7 @@ class ConfigurationClassEnhancer {
 									"these container lifecycle issues; see @Bean javadoc for complete details.",
 							beanMethod.getDeclaringClass().getSimpleName(), beanMethod.getName()));
 				}
-				//执行父类方法，也就是代理方法，@Bean的方法
+				//执行父类方法，也就是被代理方法，@Bean的方法
 				return cglibMethodProxy.invokeSuper(enhancedConfigInstance, beanMethodArgs);
 			}
 			//否则解析bean依赖，这种情况应该就是@Bean的内部调用

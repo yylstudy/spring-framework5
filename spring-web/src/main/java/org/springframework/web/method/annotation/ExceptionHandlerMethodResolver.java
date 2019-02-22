@@ -54,7 +54,9 @@ public class ExceptionHandlerMethodResolver {
 	 * 全局的异常以及其@ExceptionHandler注解所在的方法的映射集合
 	 */
 	private final Map<Class<? extends Throwable>, Method> mappedMethods = new HashMap<>(16);
-
+	/**
+	 * 当前Controller类和其匹配的ExceptionHandler的方法的集合
+	 */
 	private final Map<Class<? extends Throwable>, Method> exceptionLookupCache = new ConcurrentReferenceHashMap<>(16);
 
 
@@ -133,10 +135,9 @@ public class ExceptionHandlerMethodResolver {
 	}
 
 	/**
-	 * Find a {@link Method} to handle the given exception.
-	 * Use {@link ExceptionDepthComparator} if more than one match is found.
-	 * @param exception the exception
-	 * @return a Method to handle the exception, or {@code null} if none found
+	 * 调用异常方法
+	 * @param exception
+	 * @return
 	 */
 	@Nullable
 	public Method resolveMethod(Exception exception) {
@@ -150,8 +151,14 @@ public class ExceptionHandlerMethodResolver {
 	 * @return a Method to handle the exception, or {@code null} if none found
 	 * @since 5.0
 	 */
+	/**
+	 * 调用异常方法
+	 * @param exception
+	 * @return
+	 */
 	@Nullable
 	public Method resolveMethodByThrowable(Throwable exception) {
+		//根据异常获取ExceptionHandler对应的方法
 		Method method = resolveMethodByExceptionType(exception.getClass());
 		if (method == null) {
 			Throwable cause = exception.getCause();
@@ -163,15 +170,15 @@ public class ExceptionHandlerMethodResolver {
 	}
 
 	/**
-	 * Find a {@link Method} to handle the given exception type. This can be
-	 * useful if an {@link Exception} instance is not available (e.g. for tools).
-	 * @param exceptionType the exception type
-	 * @return a Method to handle the exception, or {@code null} if none found
+	 * 根据异常获取ExceptionHandler对应的方法
+	 * @param exceptionType
+	 * @return
 	 */
 	@Nullable
 	public Method resolveMethodByExceptionType(Class<? extends Throwable> exceptionType) {
 		Method method = this.exceptionLookupCache.get(exceptionType);
 		if (method == null) {
+			//根据异常获取ExceptionHandler对应的方法
 			method = getMappedMethod(exceptionType);
 			this.exceptionLookupCache.put(exceptionType, method);
 		}
@@ -179,7 +186,9 @@ public class ExceptionHandlerMethodResolver {
 	}
 
 	/**
-	 * Return the {@link Method} mapped to the given exception type, or {@code null} if none.
+	 * 根据异常获取ExceptionHandler对应的方法
+	 * @param exceptionType
+	 * @return
 	 */
 	@Nullable
 	private Method getMappedMethod(Class<? extends Throwable> exceptionType) {

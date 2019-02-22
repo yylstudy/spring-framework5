@@ -89,7 +89,9 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 	 * 可以看到这里面有重复的，但是重复的参数不同，导致结果不同
 	 */
 	private final List<HandlerMethodArgumentResolver> argumentResolvers = new LinkedList<>();
-
+	/**
+	 * MethodParameter和其匹配的参数解析器的映射集合
+	 */
 	private final Map<MethodParameter, HandlerMethodArgumentResolver> argumentResolverCache =
 			new ConcurrentHashMap<>(256);
 
@@ -146,8 +148,9 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 
 
 	/**
-	 * Whether the given {@linkplain MethodParameter method parameter} is supported by any registered
-	 * {@link HandlerMethodArgumentResolver}.
+	 * 参数解析器是否支持该参数
+	 * @param parameter the method parameter to check
+	 * @return
 	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
@@ -155,14 +158,19 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 	}
 
 	/**
-	 * Iterate over registered {@link HandlerMethodArgumentResolver}s and invoke the one that supports it.
-	 * @throws IllegalStateException if no suitable {@link HandlerMethodArgumentResolver} is found.
+	 * 参数解析器去解析参数
+	 * @param parameter
+	 * @param mavContainer 方法参数对象
+	 * @param webRequest
+	 * @param binderFactory 数据绑定对象
+	 * @return
+	 * @throws Exception
 	 */
 	@Override
 	@Nullable
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
-
+		//获取支持的参数解析器
 		HandlerMethodArgumentResolver resolver = getArgumentResolver(parameter);
 		if (resolver == null) {
 			throw new IllegalArgumentException("Unknown parameter type [" + parameter.getParameterType().getName() + "]");
@@ -171,12 +179,15 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 	}
 
 	/**
-	 * Find a registered {@link HandlerMethodArgumentResolver} that supports the given method parameter.
+	 * 参数解析器是否支持该参数
+	 * @param parameter
+	 * @return
 	 */
 	@Nullable
 	private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
 		HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
 		if (result == null) {
+			//遍历参数解析器
 			for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +

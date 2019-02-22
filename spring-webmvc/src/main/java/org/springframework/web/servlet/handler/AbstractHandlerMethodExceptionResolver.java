@@ -34,9 +34,10 @@ import org.springframework.web.servlet.ModelAndView;
 public abstract class AbstractHandlerMethodExceptionResolver extends AbstractHandlerExceptionResolver {
 
 	/**
-	 * Checks if the handler is a {@link HandlerMethod} and then delegates to the
-	 * base class implementation of {@code #shouldApplyTo(HttpServletRequest, Object)}
-	 * passing the bean of the {@code HandlerMethod}. Otherwise returns {@code false}.
+	 * 是否应该处理异常
+	 * @param request request对象
+	 * @param handler HandlerMethod
+	 * @return
 	 */
 	@Override
 	protected boolean shouldApplyTo(HttpServletRequest request, @Nullable Object handler) {
@@ -53,6 +54,15 @@ public abstract class AbstractHandlerMethodExceptionResolver extends AbstractHan
 		}
 	}
 
+	/**
+	 * 处理真正的异常
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @param handler the executed handler, or {@code null} if none chosen at the time
+	 * of the exception (for example, if multipart resolution failed)
+	 * @param ex the exception that got thrown during handler execution
+	 * @return
+	 */
 	@Override
 	@Nullable
 	protected final ModelAndView doResolveException(
