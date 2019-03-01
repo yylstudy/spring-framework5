@@ -34,7 +34,9 @@ import org.springframework.util.Assert;
  * @see org.springframework.context.ApplicationListener#onApplicationEvent
  */
 public class GenericApplicationListenerAdapter implements GenericApplicationListener, SmartApplicationListener {
-
+	/**
+	 * 被适配的监听器对象
+	 */
 	private final ApplicationListener<ApplicationEvent> delegate;
 
 	@Nullable
@@ -42,13 +44,14 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 
 
 	/**
-	 * Create a new GenericApplicationListener for the given delegate.
-	 * @param delegate the delegate listener to be invoked
+	 * 创建GenericApplicationListenerAdapter
+	 * @param delegate
 	 */
 	@SuppressWarnings("unchecked")
 	public GenericApplicationListenerAdapter(ApplicationListener<?> delegate) {
 		Assert.notNull(delegate, "Delegate listener must not be null");
 		this.delegate = (ApplicationListener<ApplicationEvent>) delegate;
+		//解析事件的ResolvableType
 		this.declaredEventType = resolveDeclaredEventType(this.delegate);
 	}
 
@@ -58,6 +61,11 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 		this.delegate.onApplicationEvent(event);
 	}
 
+	/**
+	 * 是否支持当前事件
+	 * @param eventType
+	 * @return
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean supportsEventType(ResolvableType eventType) {
@@ -86,10 +94,16 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 		return (this.delegate instanceof Ordered ? ((Ordered) this.delegate).getOrder() : Ordered.LOWEST_PRECEDENCE);
 	}
 
-
+	/**
+	 * 解析事件的ResolvableType
+	 * @param listener
+	 * @return
+	 */
 	@Nullable
 	private static ResolvableType resolveDeclaredEventType(ApplicationListener<ApplicationEvent> listener) {
+		//解析当前的事件类型 ResolvableType
 		ResolvableType declaredEventType = resolveDeclaredEventType(listener.getClass());
+		//解析出来的事件是否是ApplicationEvent的子类
 		if (declaredEventType == null || declaredEventType.isAssignableFrom(ApplicationEvent.class)) {
 			Class<?> targetClass = AopUtils.getTargetClass(listener);
 			if (targetClass != listener.getClass()) {
@@ -106,8 +120,9 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 	 */
 	@Nullable
 	static ResolvableType resolveDeclaredEventType(Class<?> listenerType) {
-		//查询监听的事件的ResolvableType
+		//传入的监听器可能是ApplicationListener的子类，所以要解析至ApplicationListener层
 		ResolvableType resolvableType = ResolvableType.forClass(listenerType).as(ApplicationListener.class);
+		//是否拥有Generic  指的是getGeneric等
 		return (resolvableType.hasGenerics() ? resolvableType.getGeneric() : null);
 	}
 

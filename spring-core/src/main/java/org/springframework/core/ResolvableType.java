@@ -101,7 +101,7 @@ public class ResolvableType implements Serializable {
 	private final Type type;
 
 	/**
-	 * Optional provider for the type.
+	 * Type提供器
 	 */
 	@Nullable
 	private final TypeProvider typeProvider;
@@ -248,6 +248,11 @@ public class ResolvableType implements Serializable {
 	 * @param other the type to be checked against (as a {@code Class})
 	 * @since 4.2
 	 * @see #isAssignableFrom(ResolvableType)
+	 */
+	/**
+	 * 是否是
+	 * @param other
+	 * @return
 	 */
 	public boolean isAssignableFrom(Class<?> other) {
 		return isAssignableFrom(forClass(other), null);
@@ -498,6 +503,10 @@ public class ResolvableType implements Serializable {
 	 * @see #getGeneric(int...)
 	 * @see #getGenerics()
 	 */
+	/**
+	 * 是否有Generic  对于监听来说，一般都是获取监听的ParameterizedType
+	 * @return
+	 */
 	public boolean hasGenerics() {
 		return (getGenerics().length > 0);
 	}
@@ -680,12 +689,17 @@ public class ResolvableType implements Serializable {
 	 * @see #resolveGeneric(int...)
 	 * @see #resolveGenerics()
 	 */
+	/**
+	 * 获取Generic 的ResolvableType 对于监听来说，一般都是获取监听的ParameterizedType
+	 * @return
+	 */
 	public ResolvableType[] getGenerics() {
 		if (this == NONE) {
 			return EMPTY_TYPES_ARRAY;
 		}
 		ResolvableType[] generics = this.generics;
 		if (generics == null) {
+			//当前监听是class类型
 			if (this.type instanceof Class) {
 				Class<?> typeClass = (Class<?>) this.type;
 				generics = forTypes(SerializableTypeWrapper.forTypeParameters(typeClass), this.variableResolver);
@@ -792,7 +806,7 @@ public class ResolvableType implements Serializable {
 		if (this.type instanceof Class) {
 			return (Class<?>) this.type;
 		}
-		//如果是泛型数组，那么就递归获取最原先的类型
+		//type是泛型数组
 		if (this.type instanceof GenericArrayType) {
 			Class<?> resolvedComponent = getComponentType().resolve();
 			return (resolvedComponent != null ? Array.newInstance(resolvedComponent, 0).getClass() : null);
@@ -806,20 +820,26 @@ public class ResolvableType implements Serializable {
 	 * as it cannot be serialized.
 	 */
 	/**
-	 * 解析类型
+	 * 解析Type的三大类型
 	 * @return
 	 */
 	ResolvableType resolveType() {
+		//如果是参数化类型ParameterizedType 如List<String>、List<T>等
 		if (this.type instanceof ParameterizedType) {
+			//获取ParameterizedType的元类型 java.util.List
 			return forType(((ParameterizedType) this.type).getRawType(), this.variableResolver);
 		}
+		//如果是通配符类型List<? extends Number>中的?
 		if (this.type instanceof WildcardType) {
+			//获取通配符类型的上限
 			Type resolved = resolveBounds(((WildcardType) this.type).getUpperBounds());
 			if (resolved == null) {
+				//上限为空，就获取下限
 				resolved = resolveBounds(((WildcardType) this.type).getLowerBounds());
 			}
 			return forType(resolved, this.variableResolver);
 		}
+		//如果是泛型变量如 private T t 等
 		if (this.type instanceof TypeVariable) {
 			TypeVariable<?> variable = (TypeVariable<?>) this.type;
 			// Try default variable resolution
@@ -829,7 +849,7 @@ public class ResolvableType implements Serializable {
 					return resolved;
 				}
 			}
-			// Fallback to bounds
+			//获取泛型变量中对应的上限
 			return forType(resolveBounds(variable.getBounds()), this.variableResolver);
 		}
 		return NONE;
@@ -1427,7 +1447,7 @@ public class ResolvableType implements Serializable {
 			@Nullable Type type, @Nullable TypeProvider typeProvider, @Nullable VariableResolver variableResolver) {
 
 		if (type == null && typeProvider != null) {
-			//创建一个基于四大类型ParaterizedType、GenericArrayType、TypeVariable、WildcardType的动态代理类
+			//包装一个代理类，使type可以序列化
 			type = SerializableTypeWrapper.forTypeProvider(typeProvider);
 		}
 		if (type == null) {

@@ -106,10 +106,13 @@ abstract class SerializableTypeWrapper {
 	}
 
 	/**
-	 * Return a {@link Serializable} variant of {@link Class#getTypeParameters()}.
+	 * 获取当前接口的泛型参数 如 MyApplication<MyEvent> 中的MyEvent
+	 * @param type
+	 * @return
 	 */
 	@SuppressWarnings("serial")
 	public static Type[] forTypeParameters(final Class<?> type) {
+		//获取TypeVariable数组
 		Type[] result = new Type[type.getTypeParameters().length];
 		for (int i = 0; i < result.length; i++) {
 			final int index = i;
@@ -143,8 +146,10 @@ abstract class SerializableTypeWrapper {
 	 */
 	@Nullable
 	static Type forTypeProvider(TypeProvider provider) {
-		//获取参数的Type
+		//获取对应的type
 		Type providedType = provider.getType();
+		//如果该type已经实现了Serializable接口，直接返回，所以这里可以看到创建动态代理的作用就是使type的四大对象
+		//实现Serializable，但是这有什么作用呢？？？
 		if (providedType == null || providedType instanceof Serializable) {
 			// No serializable type wrapping necessary (e.g. for java.lang.Class)
 			return providedType;
@@ -160,6 +165,8 @@ abstract class SerializableTypeWrapper {
 			if (type.isInstance(providedType)) {
 				ClassLoader classLoader = provider.getClass().getClassLoader();
 				//创建动态代理的接口数组，所以这个动态代理 代理的是四大Type类型的所有方法
+				//冰天加代理类SerializableTypeProxy的getTypeProvider方法，这个方法得到的TypeProvider也是具有
+				//Serializable的能力
 				Class<?>[] interfaces = new Class<?>[] {type, SerializableTypeProxy.class, Serializable.class};
 				//创建一个泛型参数接口的InvocationHandler
 				InvocationHandler handler = new TypeProxyInvocationHandler(provider);
@@ -246,10 +253,12 @@ abstract class SerializableTypeWrapper {
 			else if (method.getName().equals("hashCode")) {
 				return ObjectUtils.nullSafeHashCode(this.provider.getType());
 			}
+			//如果方法是SerializableTypeProxy的方法getTypeProvider
+			//就获取field封装的TypeProvider
 			else if (method.getName().equals("getTypeProvider")) {
 				return this.provider;
 			}
-			//代理Type的返回类型为Type且参数为空的方法
+			//四大Type类型对应的参数为空的返回值为Type的方法
 			if (Type.class == method.getReturnType() && args == null) {
 				return forTypeProvider(new MethodInvokeTypeProvider(this.provider, method, -1));
 			}
@@ -286,7 +295,7 @@ abstract class SerializableTypeWrapper {
 		 */
 		private final Class<?> declaringClass;
 		/**
-		 * 属性对象
+		 * 字段本身的Field对象
 		 */
 		private transient Field field;
 
@@ -297,7 +306,7 @@ abstract class SerializableTypeWrapper {
 		}
 
 		/**
-		 * 获取泛型类型 Type
+		 * 返回字段类型的class对象
 		 * @return
 		 */
 		@Override
@@ -305,6 +314,10 @@ abstract class SerializableTypeWrapper {
 			return this.field.getGenericType();
 		}
 
+		/**
+		 * 获取源对象
+		 * @return
+		 */
 		@Override
 		public Object getSource() {
 			return this.field;
