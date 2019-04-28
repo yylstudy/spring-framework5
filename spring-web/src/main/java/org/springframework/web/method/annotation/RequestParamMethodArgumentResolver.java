@@ -118,7 +118,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 		//方法参数中包含@RequestParam对象
 		if (parameter.hasParameterAnnotation(RequestParam.class)) {
 			//参数类型是map
-			if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
+			if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParametresolveArgumenterType())) {
 				RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
 				return (requestParam != null && StringUtils.hasText(requestParam.name()));
 			}

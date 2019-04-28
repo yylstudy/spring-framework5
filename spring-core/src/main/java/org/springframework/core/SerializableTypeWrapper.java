@@ -112,10 +112,11 @@ abstract class SerializableTypeWrapper {
 	 */
 	@SuppressWarnings("serial")
 	public static Type[] forTypeParameters(final Class<?> type) {
-		//获取TypeVariable数组
+		//获取class上的泛型的Type
 		Type[] result = new Type[type.getTypeParameters().length];
 		for (int i = 0; i < result.length; i++) {
 			final int index = i;
+			//获取class上泛型的代理对象
 			result[i] = forTypeProvider(() -> type.getTypeParameters()[index]);
 		}
 		return result;
@@ -165,7 +166,7 @@ abstract class SerializableTypeWrapper {
 			if (type.isInstance(providedType)) {
 				ClassLoader classLoader = provider.getClass().getClassLoader();
 				//创建动态代理的接口数组，所以这个动态代理 代理的是四大Type类型的所有方法
-				//冰天加代理类SerializableTypeProxy的getTypeProvider方法，这个方法得到的TypeProvider也是具有
+				//并添加代理类SerializableTypeProxy的getTypeProvider方法，这个方法得到的TypeProvider也是具有
 				//Serializable的能力
 				Class<?>[] interfaces = new Class<?>[] {type, SerializableTypeProxy.class, Serializable.class};
 				//创建一个泛型参数接口的InvocationHandler
@@ -262,9 +263,11 @@ abstract class SerializableTypeWrapper {
 			if (Type.class == method.getReturnType() && args == null) {
 				return forTypeProvider(new MethodInvokeTypeProvider(this.provider, method, -1));
 			}
+			//四大Type类型对应的参数为空返回类型为Type[]的方法
 			else if (Type[].class == method.getReturnType() && args == null) {
 				Type[] result = new Type[((Type[]) method.invoke(this.provider.getType())).length];
 				for (int i = 0; i < result.length; i++) {
+					//获取方法执行对象的Type
 					result[i] = forTypeProvider(new MethodInvokeTypeProvider(this.provider, method, i));
 				}
 				return result;
@@ -422,7 +425,7 @@ abstract class SerializableTypeWrapper {
 		 */
 		private final String methodName;
 		/**
-		 * 被代理方法所在的类
+		 * 被代理方法所在的类（通常也就是对应的type类型）
 		 */
 		private final Class<?> declaringClass;
 		/**
@@ -430,7 +433,7 @@ abstract class SerializableTypeWrapper {
 		 */
 		private final int index;
 		/**
-		 * 被代理方法对象
+		 * Type所在的方法
 		 */
 		private transient Method method;
 
@@ -445,6 +448,10 @@ abstract class SerializableTypeWrapper {
 			this.method = method;
 		}
 
+		/**
+		 * 获取Type对象
+		 * @return
+		 */
 		@Override
 		@Nullable
 		public Type getType() {

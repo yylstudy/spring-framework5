@@ -63,8 +63,8 @@ final class ConfigurationClass {
 	@Nullable
 	private String beanName;
 	/**
-	 * @Import 注解所在类的ConfigurationClass  需要注意的是这个值是注解所在类的ConfigurationClass
-	 * 但是这个ConfigurationClass本身是@Import注解类的ConfigurationClass
+	 * 当前的ConfigurationClass是@Import注解导入进来的
+	 * 所以importedBy属性就是记录是由哪些@Import注解所在类的ConfigurationClass导入进来的
 	 */
 	private final Set<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
 	/**
@@ -77,7 +77,7 @@ final class ConfigurationClass {
 	private final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
 			new LinkedHashMap<>();
 	/**
-	 * 实现ImportBeanDefinitionRegistrar接口的@Import类和其@Import注解所在类的注解元数据对象
+	 * 实现ImportBeanDefinitionRegistrar接口的@Import类和其@Import注解所在类的注解元数据对象的映射集合
 	 */
 	private final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> importBeanDefinitionRegistrars =
 			new LinkedHashMap<>();

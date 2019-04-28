@@ -38,15 +38,12 @@ import org.springframework.util.ClassUtils;
  */
 public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter {
 	/**
-	 * 需要包含的注解 默认就是
+	 * 需要包含的注解 常用的
 	 * @Component
-	 * @ManagedBean
-	 * @Named
-	 * 这三个，后面两个不经常见
 	 */
 	private final Class<? extends Annotation> annotationType;
 	/**
-	 * 是否包含复合注解，true
+	 * 是否包含元注解，一般为true
 	 */
 	private final boolean considerMetaAnnotations;
 
@@ -58,6 +55,10 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
 	 * '{@code considerMetaAnnotations}' argument. The filter will
 	 * not match interfaces.
 	 * @param annotationType the annotation type to match
+	 */
+	/**
+	 * 创建AnnotationTypeFilter
+	 * @param annotationType
 	 */
 	public AnnotationTypeFilter(Class<? extends Annotation> annotationType) {
 		this(annotationType, true, false);
@@ -78,6 +79,12 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
 	 * @param annotationType the annotation type to match
 	 * @param considerMetaAnnotations whether to also match on meta-annotations
 	 * @param considerInterfaces whether to also match interfaces
+	 */
+	/**
+	 * 创建AnnotationTypeFilter
+	 * @param annotationType 注解类型 如常用的@Component
+	 * @param considerMetaAnnotations 是否考虑元注解 默认为true
+	 * @param considerInterfaces 是否考虑接口 默认为false
 	 */
 	public AnnotationTypeFilter(
 			Class<? extends Annotation> annotationType, boolean considerMetaAnnotations, boolean considerInterfaces) {

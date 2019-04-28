@@ -776,11 +776,14 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			processRollback(defStatus, false);
 			return;
 		}
-
+		//当前事务是否只允许回滚
 		if (!shouldCommitOnGlobalRollbackOnly() && defStatus.isGlobalRollbackOnly()) {
 			if (defStatus.isDebug()) {
 				logger.debug("Global transaction is marked as rollback-only but transactional code requested commit");
 			}
+			//回滚的后置处理，这里也就是
+			//Transaction rolled back because it has been marked as rollback-only
+			//的原因
 			processRollback(defStatus, true);
 			return;
 		}
@@ -930,12 +933,16 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 					doRollback(status);
 				}
 				else {
-					// Participating in larger transaction
+					//存在事务对象，但是不是一个新的事务
 					if (status.hasTransaction()) {
 						if (status.isLocalRollbackOnly() || isGlobalRollbackOnParticipationFailure()) {
 							if (status.isDebug()) {
 								logger.debug("Participating transaction failed - marking existing transaction as rollback-only");
 							}
+							//设置只允许回滚，也就是不允许提交
+							//这里也就是嵌套事务 trty catch 抛出异常
+							//Transaction rolled back because it has been marked as rollback-only
+							//的根源了
 							doSetRollbackOnly(status);
 						}
 						else {

@@ -142,7 +142,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/** Custom PropertyEditorRegistrars to apply to the beans of this factory */
 	/**
-	 * 属性编辑注册器 ResourceEditorRegistrar
+	 * 属性编辑注册器
+	 * ResourceEditorRegistrar
 	 */
 	private final Set<PropertyEditorRegistrar> propertyEditorRegistrars = new LinkedHashSet<>(4);
 
@@ -205,7 +206,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/** Names of beans that have already been created at least once */
 	/**
-	 * 已经创建的bean的beanName
+	 * 已经实例化bean的beanName
 	 */
 	private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
@@ -548,7 +549,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	}
 
 	/**
-	 * 类型匹配
+	 * 对应beanName的bean是否匹配要查找的ResolvableType
 	 * @param name beanName
 	 * @param typeToMatch 匹配的类型
 	 * @return
@@ -567,10 +568,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					return (type != null && typeToMatch.isAssignableFrom(type));
 				}
 				else {
+					//实例对象的class是否匹配
 					return typeToMatch.isInstance(beanInstance);
 				}
 			}
+			//beanName不是&开头
 			else if (!BeanFactoryUtils.isFactoryDereference(name)) {
+				//是否是对应ResolvableType的实例
 				if (typeToMatch.isInstance(beanInstance)) {
 					// Direct match for exposed instance?
 					return true;
@@ -604,11 +608,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 		// 获取RootBeanDefinition
 		RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
-
+		//获取解析后的class
 		Class<?> classToMatch = typeToMatch.resolve();
 		if (classToMatch == null) {
 			classToMatch = FactoryBean.class;
 		}
+		//不是FactoryBean的子类，那么就添加FactoryBean，什么作用呢
 		Class<?>[] typesToMatch = (FactoryBean.class == classToMatch ?
 				new Class<?>[] {classToMatch} : new Class<?>[] {FactoryBean.class, classToMatch});
 
@@ -657,6 +662,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		if (resolvableType != null && resolvableType.resolve() == beanType) {
 			return typeToMatch.isAssignableFrom(resolvableType);
 		}
+		//类型是否匹配
 		return typeToMatch.isAssignableFrom(beanType);
 	}
 
@@ -1479,6 +1485,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					doResolveBeanClass(mbd, typesToMatch), getAccessControlContext());
 			}
 			else {
+				//解析bean的类型
 				return doResolveBeanClass(mbd, typesToMatch);
 			}
 		}
@@ -1836,14 +1843,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @see #registerDependentBean
 	 */
 	/**
-	 * 注册DispoableBean
+	 * 注册要执行销毁方法的bean
 	 * @param beanName
 	 * @param bean
 	 * @param mbd
 	 */
 	protected void registerDisposableBeanIfNecessary(String beanName, Object bean, RootBeanDefinition mbd) {
 		AccessControlContext acc = (System.getSecurityManager() != null ? getAccessControlContext() : null);
-		//是否
+		//非原型
 		if (!mbd.isPrototype() && requiresDestruction(bean, mbd)) {
 			if (mbd.isSingleton()) {
 				// Register a DisposableBean implementation that performs all destruction

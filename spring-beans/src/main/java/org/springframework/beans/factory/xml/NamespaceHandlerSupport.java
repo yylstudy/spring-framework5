@@ -49,8 +49,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * local name of the {@link Element Elements} they handle.
 	 */
 	/**
-	 * 命名空间解析器
-	 * ComponentScanBeanDefinitionParser
+	 * 标签名和对应标签的BeanDefinition解析器的映射
 	 */
 	private final Map<String, BeanDefinitionParser> parsers = new HashMap<>();
 
@@ -68,12 +67,14 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 
 
 	/**
+	 * 解析自定义标签
 	 * Parses the supplied {@link Element} by delegating to the {@link BeanDefinitionParser} that is
 	 * registered for that {@link Element}.
 	 */
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		//获取对应自定义标签的BeanDefrinitionParser
 		BeanDefinitionParser parser = findParserForElement(element, parserContext);
 		return (parser != null ? parser.parse(element, parserContext) : null);
 	}

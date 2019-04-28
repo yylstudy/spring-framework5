@@ -46,7 +46,7 @@ abstract class AnnotationReadingVisitorUtils {
 	 * 转化class的value值，这里大部分是转成String
 	 * @param annotatedElement
 	 * @param classLoader
-	 * @param original
+	 * @param original 原来的AnnotationAttributes
 	 * @param classValuesAsString
 	 * @return
 	 */
@@ -127,7 +127,8 @@ abstract class AnnotationReadingVisitorUtils {
 	 * @since 4.0.3
 	 */
 	/**
-	 * 获取合并的注解属性对象
+	 * 获取合并的注解属性对象，这个主要是将复合注解中 父注解中相同方法的值赋给对应注解
+	 * 如
 	 * @param attributesMap 类上注解和其注解中的注解对应其注解属性对象的集合
 	 * @param metaAnnotationMap 类上注解对应其注解中的注解的映射集合
 	 * @param annotationName 要查找的注解名称
@@ -150,9 +151,9 @@ abstract class AnnotationReadingVisitorUtils {
 		// inadvertently mutate the state of the metadata passed to this method.
 		//获取注解属性对象
 		AnnotationAttributes result = new AnnotationAttributes(attributesList.get(0));
-		//属性对象key集合
+		//获取注解上的所有方法名
 		Set<String> overridableAttributeNames = new HashSet<>(result.keySet());
-		//删除value
+		//删除value方法
 		overridableAttributeNames.remove(AnnotationUtils.VALUE);
 
 		// Since the map is a LinkedMultiValueMap, we depend on the ordering of
@@ -173,6 +174,7 @@ abstract class AnnotationReadingVisitorUtils {
 				//如果这个注解集合包含要查找的注解
 				if (metaAnns != null && metaAnns.contains(annotationName)) {
 					AnnotationAttributes currentAttributes = currentAttributesList.get(0);
+					//遍历删除value方法名的注解方法
 					for (String overridableAttributeName : overridableAttributeNames) {
 						Object value = currentAttributes.get(overridableAttributeName);
 						if (value != null) {

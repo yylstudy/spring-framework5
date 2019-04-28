@@ -413,6 +413,16 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	 * to which argument name. There are multiple strategies for determining
 	 * this binding, which are arranged in a ChainOfResponsibility.
 	 */
+	private boolean maybeBindJoinPoint(Class<?> candidateParameterType) {
+		if (JoinPoint.class == candidateParameterType) {
+			this.joinPointArgumentIndex = 0;
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	/**
 	 * 计算参数绑定
 	 */
@@ -437,16 +447,6 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		}
 
 		this.argumentsIntrospected = true;
-	}
-
-	private boolean maybeBindJoinPoint(Class<?> candidateParameterType) {
-		if (JoinPoint.class == candidateParameterType) {
-			this.joinPointArgumentIndex = 0;
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 	private boolean maybeBindProceedingJoinPoint(Class<?> candidateParameterType) {

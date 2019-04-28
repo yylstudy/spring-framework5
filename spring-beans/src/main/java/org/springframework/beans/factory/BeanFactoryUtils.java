@@ -206,6 +206,14 @@ public abstract class BeanFactoryUtils {
 	 * @param type the type that beans must match
 	 * @return the array of matching bean names, or an empty array if none
 	 */
+	/**
+	 * 包含祖先类型的type的beanName
+	 * @param lbf
+	 * @param type
+	 * @param includeNonSingletons
+	 * @param allowEagerInit
+	 * @return
+	 */
 	public static String[] beanNamesForTypeIncludingAncestors(
 			ListableBeanFactory lbf, Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
 

@@ -257,9 +257,7 @@ class ConfigurationClassBeanDefinitionReader {
 		beanDef.setAttribute(RequiredAnnotationBeanPostProcessor.SKIP_REQUIRED_CHECK_ATTRIBUTE, Boolean.TRUE);
 
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef, metadata);
-		/**
-		 * 设置@Bean注解的autowire，默认就是AUTOWIRE_CONSTRUCTOR
-		 */
+		//设置@Bean注解的autowire，默认就是AUTOWIRE_CONSTRUCTOR
 		Autowire autowire = bean.getEnum("autowire");
 		if (autowire.isAutowire()) {
 			beanDef.setAutowireMode(autowire.value());
@@ -416,9 +414,13 @@ class ConfigurationClassBeanDefinitionReader {
 	 */
 	@SuppressWarnings("serial")
 	private static class ConfigurationClassBeanDefinition extends RootBeanDefinition implements AnnotatedBeanDefinition {
-
+		/**
+		 * @Bean 方法所在类的注解元数据对象
+		 */
 		private final AnnotationMetadata annotationMetadata;
-
+		/**
+		 * @Bean 方法的方法元数据对象
+		 */
 		private final MethodMetadata factoryMethodMetadata;
 
 		public ConfigurationClassBeanDefinition(ConfigurationClass configClass, MethodMetadata beanMethodMetadata) {

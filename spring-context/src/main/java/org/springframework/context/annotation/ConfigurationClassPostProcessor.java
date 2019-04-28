@@ -251,6 +251,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		if (!this.registriesPostProcessed.contains(factoryId)) {
 			// BeanDefinitionRegistryPostProcessor hook apparently not supported...
 			// Simply call processConfigurationClasses lazily at this point then.
+			//处理注解的ConfigBeanDefinition
 			processConfigBeanDefinitions((BeanDefinitionRegistry) beanFactory);
 		}
 		//增强@Configuration注解配置的类，也就是对full模式的配置类进行cglib代理
@@ -345,6 +346,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			alreadyParsed.addAll(configClasses);
 			//清空跳出循环
 			candidates.clear();
+			//
 			if (registry.getBeanDefinitionCount() > candidateNames.length) {
 				String[] newCandidateNames = registry.getBeanDefinitionNames();
 				Set<String> oldCandidateNames = new HashSet<>(Arrays.asList(candidateNames));
@@ -445,7 +447,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 
 	private static class ImportAwareBeanPostProcessor extends InstantiationAwareBeanPostProcessorAdapter {
-
+		/**
+		 * DefaultListableBeanFactory
+		 */
 		private final BeanFactory beanFactory;
 
 		public ImportAwareBeanPostProcessor(BeanFactory beanFactory) {

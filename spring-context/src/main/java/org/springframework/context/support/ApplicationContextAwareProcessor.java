@@ -60,10 +60,12 @@ import org.springframework.util.StringValueResolver;
  */
 class ApplicationContextAwareProcessor implements BeanPostProcessor {
 	/**
-	 * applicationContext
+	 * 容器上下文对象 applicationContext
 	 */
 	private final ConfigurableApplicationContext applicationContext;
-
+	/**
+	 * 嵌入值解析器 EmbeddedValueResolver
+	 */
 	private final StringValueResolver embeddedValueResolver;
 
 

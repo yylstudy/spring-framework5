@@ -43,7 +43,9 @@ import org.springframework.util.ClassUtils;
  */
 public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCandidateResolver
 		implements BeanFactoryAware {
-
+	/**
+	 * DefaultListableBeanDefinition
+	 */
 	@Nullable
 	private BeanFactory beanFactory;
 

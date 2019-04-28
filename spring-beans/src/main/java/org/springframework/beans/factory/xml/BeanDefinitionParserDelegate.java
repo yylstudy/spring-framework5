@@ -231,7 +231,7 @@ public class BeanDefinitionParserDelegate {
 	 */
 	private final XmlReaderContext readerContext;
 	/**
-	 * 默认的文档解析器
+	 * 存放默认的BeanDeinifition的一些属性值
 	 */
 	private final DocumentDefaultsDefinition defaults = new DocumentDefaultsDefinition();
 
@@ -450,12 +450,12 @@ public class BeanDefinitionParserDelegate {
 						"' as bean name and " + aliases + " as aliases");
 			}
 		}
-		//包含的bean为空时，这个类似当前bean的父BeanDefinition
+		//依赖当前正在解析的BeanDefinition的 之前的BeanDefinition
 		//为空就检查beanName、alias的唯一性
 		if (containingBean == null) {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
-		//解析bean标签，生成AbstractBeanDefinition，这个的实现类是GenericBeanDefinition
+		//解析bean标签，生成对应的 GenericBeanDefinition对象
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
 			//beanName为空，则根据spring的规则生成beanName
@@ -540,7 +540,7 @@ public class BeanDefinitionParserDelegate {
 			Element ele, String beanName, @Nullable BeanDefinition containingBean) {
 
 		this.parseState.push(new BeanEntry(beanName));
-
+		//类名
 		String className = null;
 		if (ele.hasAttribute(CLASS_ATTRIBUTE)) {
 			className = ele.getAttribute(CLASS_ATTRIBUTE).trim();
@@ -602,7 +602,7 @@ public class BeanDefinitionParserDelegate {
 	 * @param ele
 	 * @param beanName
 	 * @param containingBean  父bean的GenericBeanDefinition
-	 * @param bd
+	 * @param bd BeanDefinition
 	 * @return
 	 */
 	public AbstractBeanDefinition parseBeanDefinitionAttributes(Element ele, String beanName,
@@ -864,7 +864,7 @@ public class BeanDefinitionParserDelegate {
 							error("Ambiguous constructor-arg entries for index " + index, ele);
 						}
 						else {
-							//将ValueHolder对象添加到构造下标集合中
+							//将ValueHolder对象添加到下标构造参数集合中
 							bd.getConstructorArgumentValues().addIndexedArgumentValue(index, valueHolder);
 						}
 					}
@@ -1448,17 +1448,29 @@ public class BeanDefinitionParserDelegate {
 		return TRUE_VALUE.equals(value);
 	}
 
+	/**
+	 * 解析自定义标签
+	 * @param ele
+	 * @return
+	 */
 	@Nullable
 	public BeanDefinition parseCustomElement(Element ele) {
 		return parseCustomElement(ele, null);
 	}
 
+	/**
+	 * 解析自定义标签
+	 * @param ele
+	 * @param containingBd
+	 * @return
+	 */
 	@Nullable
 	public BeanDefinition parseCustomElement(Element ele, @Nullable BeanDefinition containingBd) {
 		String namespaceUri = getNamespaceURI(ele);
 		if (namespaceUri == null) {
 			return null;
 		}
+		//获取命名空间处理器
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);

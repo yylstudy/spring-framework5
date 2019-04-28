@@ -384,6 +384,10 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		}
 	}
 
+	/**
+	 * 设置当前事务只允许回滚
+	 * @param status the status representation of the transaction
+	 */
 	@Override
 	protected void doSetRollbackOnly(DefaultTransactionStatus status) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
@@ -473,7 +477,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		 */
 		private boolean newConnectionHolder;
 		/**
-		 * 是否重置自动提交，开启事务时为true
+		 * 是否重置自动提交，如果Connection默认是自动提交的，那么这个值为true
 		 */
 		private boolean mustRestoreAutoCommit;
 

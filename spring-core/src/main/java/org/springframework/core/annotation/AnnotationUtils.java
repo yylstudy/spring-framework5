@@ -1718,7 +1718,7 @@ public abstract class AnnotationUtils {
 		}
 
 		map = new LinkedHashMap<>();
-		//遍历注解中的所有方法
+		//遍历注解中有返回值的方法
 		for (Method attribute : getAttributeMethods(annotationType)) {
 			//获取注解属性别名
 			List<String> aliasNames = getAttributeAliasNames(attribute);
@@ -2127,15 +2127,15 @@ public abstract class AnnotationUtils {
 	 */
 	private static final class AliasDescriptor {
 		/**
-		 * 注解的方法
+		 * @AliasFor注解 所在的方法
 		 */
 		private final Method sourceAttribute;
 		/**
-		 * 注解的class类型
+		 * @AliasFor注解 所在的class类型
 		 */
 		private final Class<? extends Annotation> sourceAnnotationType;
 		/**
-		 * 注解的方法名
+		 * @AliasFor注解 所在的方法名
 		 */
 		private final String sourceAttributeName;
 		/**
@@ -2185,7 +2185,7 @@ public abstract class AnnotationUtils {
 
 		@SuppressWarnings("unchecked")
 		private AliasDescriptor(Method sourceAttribute, AliasFor aliasFor) {
-			//注解的class类型
+			//注解@AliasFor的class类型
 			Class<?> declaringClass = sourceAttribute.getDeclaringClass();
 
 			this.sourceAttribute = sourceAttribute;

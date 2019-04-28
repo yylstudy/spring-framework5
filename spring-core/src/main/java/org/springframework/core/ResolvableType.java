@@ -504,7 +504,7 @@ public class ResolvableType implements Serializable {
 	 * @see #getGenerics()
 	 */
 	/**
-	 * 是否有Generic  对于监听来说，一般都是获取监听的ParameterizedType
+	 * 是否有Generic  这个应该是判断当前class的ResolvableType是否有泛型
 	 * @return
 	 */
 	public boolean hasGenerics() {
@@ -690,7 +690,7 @@ public class ResolvableType implements Serializable {
 	 * @see #resolveGenerics()
 	 */
 	/**
-	 * 获取Generic 的ResolvableType 对于监听来说，一般都是获取监听的ParameterizedType
+	 * 获取Generic 的ResolvableType 这个应该是判断当前class的所有泛型的ResolvableType
 	 * @return
 	 */
 	public ResolvableType[] getGenerics() {
@@ -803,6 +803,7 @@ public class ResolvableType implements Serializable {
 		if (this.type == EmptyType.INSTANCE) {
 			return null;
 		}
+		//如果是class直接返回
 		if (this.type instanceof Class) {
 			return (Class<?>) this.type;
 		}
@@ -849,7 +850,7 @@ public class ResolvableType implements Serializable {
 					return resolved;
 				}
 			}
-			//获取泛型变量中对应的上限
+			//获取泛型变量中对应的上限，不设置默认为Object
 			return forType(resolveBounds(variable.getBounds()), this.variableResolver);
 		}
 		return NONE;
@@ -1028,6 +1029,12 @@ public class ResolvableType implements Serializable {
 			public ResolvableType[] getGenerics() {
 				return EMPTY_TYPES_ARRAY;
 			}
+
+			/**
+			 * 是否是对应属性的实例
+			 * @param other
+			 * @return
+			 */
 			@Override
 			public boolean isAssignableFrom(Class<?> other) {
 				return (clazz == null || ClassUtils.isAssignable(clazz, other));
@@ -1464,6 +1471,7 @@ public class ResolvableType implements Serializable {
 		cache.purgeUnreferencedEntries();
 
 		// Check the cache - we may have a ResolvableType which has been resolved before...
+		//创建type类型的ResolvableType
 		ResolvableType resultType = new ResolvableType(type, typeProvider, variableResolver);
 		ResolvableType cachedType = cache.get(resultType);
 		if (cachedType == null) {

@@ -164,6 +164,10 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	 * by the transaction coordinator, for example in case of a timeout.
 	 * @see SmartTransactionObject#isRollbackOnly
 	 */
+	/**
+	 * 是否全局回滚
+	 * @return
+	 */
 	@Override
 	public boolean isGlobalRollbackOnly() {
 		return ((this.transaction instanceof SmartTransactionObject) &&

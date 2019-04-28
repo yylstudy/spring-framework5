@@ -48,7 +48,11 @@ public class DefaultConversionService extends GenericConversionService {
 	 * Create a new {@code DefaultConversionService} with the set of
 	 * {@linkplain DefaultConversionService#addDefaultConverters(ConverterRegistry) default converters}.
 	 */
+	/**
+	 * 创建DefaultConversionService
+	 */
 	public DefaultConversionService() {
+		//添加默认的转化器
 		addDefaultConverters(this);
 	}
 
@@ -84,7 +88,12 @@ public class DefaultConversionService extends GenericConversionService {
 	 * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
 	 * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
 	 */
+	/**
+	 * 添加默认的类型转换器
+	 * @param converterRegistry
+	 */
 	public static void addDefaultConverters(ConverterRegistry converterRegistry) {
+		//添加数量的转换器
 		addScalarConverters(converterRegistry);
 		addCollectionConverters(converterRegistry);
 

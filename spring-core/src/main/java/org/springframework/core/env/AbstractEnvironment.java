@@ -132,8 +132,8 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * 空的构造
 	 */
 	public AbstractEnvironment() {
-		//添加自定义的属性资源
 		customizePropertySources(this.propertySources);
+		//添加自定义的属性资源
 		if (logger.isDebugEnabled()) {
 			logger.debug("Initialized " + getClass().getSimpleName() + " with PropertySources " + this.propertySources);
 		}
@@ -555,6 +555,10 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 		this.propertyResolver.setRequiredProperties(requiredProperties);
 	}
 
+	/**
+	 * 校验必须的属性对象
+	 * @throws MissingRequiredPropertiesException
+	 */
 	@Override
 	public void validateRequiredProperties() throws MissingRequiredPropertiesException {
 		this.propertyResolver.validateRequiredProperties();

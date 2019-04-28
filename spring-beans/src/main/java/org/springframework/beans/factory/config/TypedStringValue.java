@@ -38,7 +38,9 @@ import org.springframework.util.ObjectUtils;
  * 这个是bean中直接value=的对象
  */
 public class TypedStringValue implements BeanMetadataElement {
-	//属性值
+	/**
+	 * 字符串属性值
+	 */
 	@Nullable
 	private String value;
 

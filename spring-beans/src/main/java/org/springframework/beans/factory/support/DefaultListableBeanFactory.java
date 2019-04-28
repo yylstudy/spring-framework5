@@ -418,11 +418,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * 从容器中获取对应类型的beanName
 	 * @param type 类型
 	 * @param includeNonSingletons 是否包含非单例 true
-	 * @param allowEagerInit false
+	 * @param allowEagerInit 是否早期初始化 一般为false
 	 * @return
 	 */
 	@Override
 	public String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+		//AbstractApplicationContext中beanFactory.freezeConfiguration()方法设置了configurationFrozen为true
+		//所以在这个方法后面加载的bean这个方法为true，所以不会走下面的逻辑
 		if (!isConfigurationFrozen() || type == null || !allowEagerInit) {
 			//获取对应类型的beanName
 			return doGetBeanNamesForType(ResolvableType.forRawClass(type), includeNonSingletons, allowEagerInit);
@@ -433,6 +435,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		if (resolvedBeanNames != null) {
 			return resolvedBeanNames;
 		}
+		//获取容器中类型匹配的beanName
 		resolvedBeanNames = doGetBeanNamesForType(ResolvableType.forRawClass(type), includeNonSingletons, true);
 		if (ClassUtils.isCacheSafe(type, getBeanClassLoader())) {
 			cache.put(type, resolvedBeanNames);
@@ -442,15 +445,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	/**
 	 * 获取对应类型的beanName
-	 * @param type
-	 * @param includeNonSingletons true
-	 * @param allowEagerInit false
+	 * @param type 查找的ResolvableType
+	 * @param includeNonSingletons 是否包含非单例 true
+	 * @param allowEagerInit 是否允许提前实例化false
 	 * @return
 	 */
 	private String[] doGetBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
 		List<String> result = new ArrayList<>();
 
-		// Check all bean definitions.
+		//遍历容器中注册的beanName
 		for (String beanName : this.beanDefinitionNames) {
 			// Only consider bean as eligible if the bean name
 			// is not defined as alias for some other bean.
@@ -922,7 +925,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							"] with [" + beanDefinition + "]");
 				}
 			}
-			//存在打印日志，直接替换
+			//直接替换旧的BeanDefinition
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
@@ -1060,8 +1063,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		clearByTypeCache();
 	}
 
+	/**
+	 * 销毁bean
+	 */
 	@Override
 	public void destroySingletons() {
+		//销毁单例
 		super.destroySingletons();
 		this.manualSingletonNames.clear();
 		clearByTypeCache();
@@ -1426,6 +1433,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 		for (String candidate : candidateNames) {
 			//非自身的依赖 并解析@Qualifier保证是Autowired的候选者
+			//isAutowireCandidate方法也是类型泛型的入口
 			if (!isSelfReference(beanName, candidate) && isAutowireCandidate(candidate, descriptor)) {
 				//添加候选者 依赖的beanName和其bean的映射
 				addCandidateEntry(result, candidate, descriptor, requiredType);

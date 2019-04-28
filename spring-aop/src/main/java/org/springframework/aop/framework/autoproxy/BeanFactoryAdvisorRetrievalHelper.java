@@ -41,7 +41,9 @@ import org.springframework.util.Assert;
 public class BeanFactoryAdvisorRetrievalHelper {
 
 	private static final Log logger = LogFactory.getLog(BeanFactoryAdvisorRetrievalHelper.class);
-
+	/**
+	 * DefaultlistableBeanFactory
+	 */
 	private final ConfigurableListableBeanFactory beanFactory;
 	/**
 	 * 缓存的增强器bean（第一次查找时，容器中已注册的Advisor）

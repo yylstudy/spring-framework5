@@ -16,6 +16,7 @@
 
 package org.springframework.beans.factory.parsing;
 
+import org.springframework.beans.factory.xml.NamespaceHandlerResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
 
@@ -28,13 +29,21 @@ import org.springframework.lang.Nullable;
  * @since 2.0
  */
 public class ReaderContext {
-
+	/**
+	 * 资源文件
+	 */
 	private final Resource resource;
-
+	/**
+	 * 问题报告器 FailFastProblemReporter
+	 */
 	private final ProblemReporter problemReporter;
-
+	/**
+	 * 事件监听器 EmptyReaderEventListener
+	 */
 	private final ReaderEventListener eventListener;
-
+	/**
+	 * 源提取器  NullSourceExtractor
+	 */
 	private final SourceExtractor sourceExtractor;
 
 

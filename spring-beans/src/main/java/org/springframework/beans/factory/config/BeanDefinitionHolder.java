@@ -39,7 +39,7 @@ import org.springframework.util.StringUtils;
  */
 public class BeanDefinitionHolder implements BeanMetadataElement {
 	/**
-	 * bean标签对象
+	 * 解析完成的BeanDefinition
 	 */
 	private final BeanDefinition beanDefinition;
 	/**

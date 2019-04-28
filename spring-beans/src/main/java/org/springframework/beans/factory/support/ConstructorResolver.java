@@ -954,7 +954,9 @@ class ConstructorResolver {
 		 * 转换后的值数组
 		 */
 		public final Object[] arguments;
-
+		/**
+		 * 参数解析前的值（如RuntimeBeanReference等）
+		 */
 		public final Object[] preparedArguments;
 
 		public boolean resolveNecessary = false;

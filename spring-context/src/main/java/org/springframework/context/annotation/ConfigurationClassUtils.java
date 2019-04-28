@@ -101,6 +101,7 @@ abstract class ConfigurationClassUtils {
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
+			//component-scan的类的注解元数据已经解析过了  是个AnnotationMetadataReadingVisitor
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
 		}
 		//xml配置的类

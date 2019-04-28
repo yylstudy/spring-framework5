@@ -41,7 +41,9 @@ import org.springframework.util.SystemPropertyUtils;
 public abstract class AbstractPropertyResolver implements ConfigurablePropertyResolver {
 
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	/**
+	 * 配置转化服务 默认是DefaultConversionService
+	 */
 	@Nullable
 	private volatile ConfigurableConversionService conversionService;
 
@@ -145,6 +147,9 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 		}
 	}
 
+	/**
+	 * 校验必须的键值对
+	 */
 	@Override
 	public void validateRequiredProperties() {
 		MissingRequiredPropertiesException ex = new MissingRequiredPropertiesException();
@@ -263,6 +268,13 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	 * is necessary
 	 * @since 4.3.5
 	 */
+	/**
+	 * 转化成对应类型
+	 * @param value
+	 * @param targetType
+	 * @param <T>
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected <T> T convertValueIfNecessary(Object value, @Nullable Class<T> targetType) {
@@ -276,6 +288,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 			if (ClassUtils.isAssignableValue(targetType, value)) {
 				return (T) value;
 			}
+			//获取转化服务
 			conversionServiceToUse = DefaultConversionService.getSharedInstance();
 		}
 		return conversionServiceToUse.convert(value, targetType);

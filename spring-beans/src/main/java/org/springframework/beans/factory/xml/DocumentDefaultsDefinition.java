@@ -29,7 +29,7 @@ import org.springframework.lang.Nullable;
  */
 
 /**
- * 这些属性都是beans标签的配置，作为xml中唯一的
+ * 默认的全局BeanDefinition的配置  可通过<beans></beans>标签属性进行修改
  */
 public class DocumentDefaultsDefinition implements DefaultsDefinition {
 	/**
@@ -62,7 +62,9 @@ public class DocumentDefaultsDefinition implements DefaultsDefinition {
 	 */
 	@Nullable
 	private String destroyMethod;
-
+	/**
+	 * 源对象  默认是null
+	 */
 	@Nullable
 	private Object source;
 

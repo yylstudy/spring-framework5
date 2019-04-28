@@ -173,10 +173,13 @@ public class PropertyPlaceholderHelper {
 						}
 					}
 				}
+				//解析到的值不为空
 				if (propVal != null) {
 					// Recursive invocation, parsing placeholders contained in the
 					// previously resolved placeholder value.
+					//递归解析 解析完成的字符串  所以spring是支持多重的${}的
 					propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
+					//将${}替换成解析出来的字符串
 					result.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
 					if (logger.isTraceEnabled()) {
 						logger.trace("Resolved placeholder '" + placeholder + "'");

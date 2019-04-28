@@ -75,7 +75,7 @@ public class MethodMetadataReadingVisitor extends MethodVisitor implements Metho
 	 */
 	protected final Map<String, Set<String>> metaAnnotationMap = new LinkedHashMap<>(4);
 	/**
-	 * 方法上的注解以及其注解中的注解的集合
+	 * 方法上的注解和其注解中的注解的名称对应其注解属性对象的映射
 	 */
 	protected final LinkedMultiValueMap<String, AnnotationAttributes> attributesMap = new LinkedMultiValueMap<>(4);
 

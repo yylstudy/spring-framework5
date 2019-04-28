@@ -48,7 +48,9 @@ public final class ParserContext {
 	 * BeanDefinitionParserDelegate
 	 */
 	private final BeanDefinitionParserDelegate delegate;
-
+	/**
+	 * 父类的BeanDefinition 不是内部bean 一般为空
+	 */
 	@Nullable
 	private BeanDefinition containingBeanDefinition;
 

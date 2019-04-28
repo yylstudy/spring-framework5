@@ -45,7 +45,9 @@ import org.springframework.util.ObjectUtils;
 class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor {
 
 	private static final Log logger = LogFactory.getLog(ApplicationListenerDetector.class);
-
+	/**
+	 * 容器上下文
+	 */
 	private final transient AbstractApplicationContext applicationContext;
 
 	private final transient Map<String, Boolean> singletonNames = new ConcurrentHashMap<>(256);

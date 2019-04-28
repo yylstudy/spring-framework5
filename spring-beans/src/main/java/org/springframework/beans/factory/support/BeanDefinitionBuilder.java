@@ -39,6 +39,10 @@ public class BeanDefinitionBuilder {
 	/**
 	 * Create a new {@code BeanDefinitionBuilder} used to construct a {@link GenericBeanDefinition}.
 	 */
+	/**
+	 * 获取BeanDefinition构建器
+	 * @return
+	 */
 	public static BeanDefinitionBuilder genericBeanDefinition() {
 		return new BeanDefinitionBuilder(new GenericBeanDefinition());
 	}
@@ -130,6 +134,9 @@ public class BeanDefinitionBuilder {
 	/**
 	 * The {@code BeanDefinition} instance we are creating.
 	 */
+	/**
+	 * BeanDefinition实例，这个也就是构建器模式内部的真正对象
+	 */
 	private final AbstractBeanDefinition beanDefinition;
 
 	/**
@@ -193,6 +200,11 @@ public class BeanDefinitionBuilder {
 	/**
 	 * Add an indexed constructor arg value. The current index is tracked internally
 	 * and all additions are at the present point.
+	 */
+	/**
+	 * 添加有参构造参数
+	 * @param value
+	 * @return
 	 */
 	public BeanDefinitionBuilder addConstructorArgValue(@Nullable Object value) {
 		this.beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(

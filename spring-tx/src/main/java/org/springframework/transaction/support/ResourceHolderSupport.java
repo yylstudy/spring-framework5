@@ -35,10 +35,13 @@ import org.springframework.transaction.TransactionTimedOutException;
  */
 public abstract class ResourceHolderSupport implements ResourceHolder {
 	/**
-	 *根据事务同步，在新建事务时为true
+	 *根据事务同步，在开启事务时为true
 	 */
 	private boolean synchronizedWithTransaction = false;
-
+	/**
+	 * 当前的ConnectionHolder是否只允许回滚 嵌套事务不新建事务时抛出异常后为true
+	 *
+	 */
 	private boolean rollbackOnly = false;
 	/**
 	 * 超时时间

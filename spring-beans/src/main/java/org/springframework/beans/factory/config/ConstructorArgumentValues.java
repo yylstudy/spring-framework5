@@ -457,7 +457,9 @@ public class ConstructorArgumentValues {
 		 */
 		@Nullable
 		private String name;
-
+		/**
+		 * 如果此ValueHolder已解析，那么此时source就不为空，存放的是原来的ValueHolder，也就是未解析前的ValueHolder
+		 */
 		@Nullable
 		private Object source;
 		/**

@@ -63,7 +63,9 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  */
 public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext {
-
+	/**
+	 * 是否允许bean覆盖
+	 */
 	@Nullable
 	private Boolean allowBeanDefinitionOverriding;
 
@@ -123,8 +125,11 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		//已经存在beanFactory
 		if (hasBeanFactory()) {
+			//销毁bean
 			destroyBeans();
+			//关闭beanFactory
 			closeBeanFactory();
 		}
 		try {
@@ -235,6 +240,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		if (this.allowBeanDefinitionOverriding != null) {
 			beanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 		}
+		//是否允许循环依赖
 		if (this.allowCircularReferences != null) {
 			beanFactory.setAllowCircularReferences(this.allowCircularReferences);
 		}

@@ -49,7 +49,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 
 	/** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
-	/**BeanDefinition的注册器，这个就是beanFactory本身*/
+	/**BeanDefinition的注册器，这个就是DefaultListableBeanFactory本身*/
 	private final BeanDefinitionRegistry registry;
 	/**
 	 * 资源加载器
@@ -61,7 +61,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	@Nullable
 	private ClassLoader beanClassLoader;
 	/**
-	 * 环境对象
+	 * 环境对象  StandardEnvironemnt
 	 */
 	private Environment environment;
 
@@ -214,6 +214,13 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource)
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
+	/**
+	 * 加载BeanDefinition
+	 * @param location 配置文件地址
+	 * @param actualResources
+	 * @return
+	 * @throws BeanDefinitionStoreException
+	 */
 	public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
@@ -243,7 +250,9 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 		}
 		else {
 			// Can only load single resources by absolute URL.
+			//获取资源文件
 			Resource resource = resourceLoader.getResource(location);
+			//加载BeanDefinition
 			int loadCount = loadBeanDefinitions(resource);
 			if (actualResources != null) {
 				actualResources.add(resource);
@@ -259,6 +268,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	public int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException {
 		Assert.notNull(locations, "Location array must not be null");
 		int counter = 0;
+		//遍历配置文件地址
 		for (String location : locations) {
 			counter += loadBeanDefinitions(location);
 		}

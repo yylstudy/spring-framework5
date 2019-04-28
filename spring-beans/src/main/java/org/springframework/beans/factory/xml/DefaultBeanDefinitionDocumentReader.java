@@ -142,7 +142,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		BeanDefinitionParserDelegate parent = this.delegate;
 		//创建一个委托器
 		this.delegate = createDelegate(getReaderContext(), root, parent);
-		//是否是默认的命名空间 也就是beans
+		//是否是默认的命名空间 也就是默认标签
 		if (this.delegate.isDefaultNamespace(root)) {
 			//获取beans上的profile属性值
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
@@ -191,7 +191,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * @param root the DOM root element of the document
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
-		//当前的xml标签是否是默认标签（beans下的标签）
+		//root是否是默认标签
 		if (delegate.isDefaultNamespace(root)) {
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {

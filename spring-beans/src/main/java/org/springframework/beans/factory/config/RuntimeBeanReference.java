@@ -37,7 +37,9 @@ public class RuntimeBeanReference implements BeanReference {
 	 * false
 	 */
 	private final boolean toParent;
-
+	/**
+	 * 源对象
+	 */
 	@Nullable
 	private Object source;
 

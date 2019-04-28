@@ -153,7 +153,7 @@ class ConfigurationClassParser {
 	 */
 	private final List<String> propertySourceNames = new ArrayList<>();
 	/**
-	 * 加载过的需要初始化为bean的@Import 注解中的类，以及@Import注解所在类的类
+	 * 加载过的需要初始化为bean的@Import 注解中的类，以及@Import注解所在类的ConfigurationClass
 	 */
 	private final ImportStack importStack = new ImportStack();
 	/**
@@ -189,7 +189,7 @@ class ConfigurationClassParser {
 	 */
 	public void parse(Set<BeanDefinitionHolder> configCandidates) {
 		this.deferredImportSelectors = new LinkedList<>();
-		//遍历容器中存在的BeanDefinitionHolder
+		//遍历配置的候选者
 		for (BeanDefinitionHolder holder : configCandidates) {
 			BeanDefinition bd = holder.getBeanDefinition();
 			try {
@@ -355,6 +355,7 @@ class ConfigurationClassParser {
 					}
 					//检查
 					if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, this.metadataReaderFactory)) {
+						//递归解析ComponentScan的bean
 						parse(bdCand.getBeanClassName(), holder.getBeanName());
 					}
 				}
@@ -409,9 +410,11 @@ class ConfigurationClassParser {
 	}
 
 	/**
+	 * 处理内部类
 	 * Register member (nested) classes that happen to be configuration classes themselves.
 	 */
 	private void processMemberClasses(ConfigurationClass configClass, SourceClass sourceClass) throws IOException {
+		//获取内部类的class集合
 		Collection<SourceClass> memberClasses = sourceClass.getMemberClasses();
 		if (!memberClasses.isEmpty()) {
 			List<SourceClass> candidates = new ArrayList<>(memberClasses.size());
@@ -620,9 +623,9 @@ class ConfigurationClassParser {
 	 */
 	/**
 	 * 收集import
-	 * @param sourceClass
-	 * @param imports
-	 * @param visited
+	 * @param sourceClass lite或者full的beanDefinition的sourceClass
+	 * @param imports 收集到的SourceClass
+	 * @param visited 访问过的SourceClass
 	 * @throws IOException
 	 */
 	private void collectImports(SourceClass sourceClass, Set<SourceClass> imports, Set<SourceClass> visited)
@@ -637,7 +640,7 @@ class ConfigurationClassParser {
 					collectImports(annotation, imports, visited);
 				}
 			}
-			//添加@Import注解value方法的SourceClass
+			//添加@Import注解value方法中的的SourceClass
 			imports.addAll(sourceClass.getAnnotationAttributes(Import.class.getName(), "value"));
 		}
 	}
@@ -705,7 +708,7 @@ class ConfigurationClassParser {
 
 	/**
 	 * 处理@Import注解
-	 * @param configClass
+	 * @param configClass @Import注解所在类ConfigurationClass
 	 * @param currentSourceClass @Import注解所在类的SourceClass
 	 * @param importCandidates @Import注解对应的类的SourceClass
 	 * @param checkForCircularImports true
@@ -755,8 +758,10 @@ class ConfigurationClassParser {
 						Class<?> candidateClass = candidate.loadClass();
 						ImportBeanDefinitionRegistrar registrar =
 								BeanUtils.instantiateClass(candidateClass, ImportBeanDefinitionRegistrar.class);
+						//调用Aware方法
 						ParserStrategyUtils.invokeAwareMethods(
 								registrar, this.environment, this.resourceLoader, this.registry);
+						//添加ImportBeanDefinitionRegistrar
 						configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
 					}
 					//均未实现
@@ -765,7 +770,7 @@ class ConfigurationClassParser {
 						// process it as an @Configuration class
 						this.importStack.registerImport(
 								currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
-						//将@Import注解中的类作为配置类，并做个importedBy属性不空的标识，来判断哪些Import类已经解析过了
+						//将@Import注解中的类作为配置类进行解析，并做个importedBy属性不空的标识，来判断哪些Import类已经解析过了
 						processConfigurationClass(candidate.asConfigClass(configClass));
 					}
 				}
@@ -1058,18 +1063,24 @@ class ConfigurationClassParser {
 			return ClassUtils.forName(className, resourceLoader.getClassLoader());
 		}
 
-		public boolean isAssignable(Class<?> clazz) throws IOException {
-			if (this.source instanceof Class) {
-				return clazz.isAssignableFrom((Class<?>) this.source);
-			}
-			return new AssignableTypeFilter(clazz).match((MetadataReader) this.source, metadataReaderFactory);
-		}
-
+		/**
+		 * 将SourceClass转为ConfigurationClass
+		 * @param importedBy
+		 * @return
+		 * @throws IOException
+		 */
 		public ConfigurationClass asConfigClass(ConfigurationClass importedBy) throws IOException {
 			if (this.source instanceof Class) {
 				return new ConfigurationClass((Class<?>) this.source, importedBy);
 			}
 			return new ConfigurationClass((MetadataReader) this.source, importedBy);
+		}
+
+		public boolean isAssignable(Class<?> clazz) throws IOException {
+			if (this.source instanceof Class) {
+				return clazz.isAssignableFrom((Class<?>) this.source);
+			}
+			return new AssignableTypeFilter(clazz).match((MetadataReader) this.source, metadataReaderFactory);
 		}
 
 		public Collection<SourceClass> getMemberClasses() throws IOException {
@@ -1154,7 +1165,7 @@ class ConfigurationClassParser {
 		}
 
 		/**
-		 * 获取对应注解的对应方法的SourceClass
+		 * 获取对应注解的对应方法的类的SourceClass
 		 * @param annType
 		 * @param attribute
 		 * @return
