@@ -150,6 +150,7 @@ public class PropertyPlaceholderHelper {
 		while (startIndex != -1) {
 			int endIndex = findPlaceholderEndIndex(result, startIndex);
 			if (endIndex != -1) {
+				//获取${}中的表达式
 				String placeholder = result.substring(startIndex + this.placeholderPrefix.length(), endIndex);
 				String originalPlaceholder = placeholder;
 				if (!visitedPlaceholders.add(originalPlaceholder)) {
@@ -162,6 +163,7 @@ public class PropertyPlaceholderHelper {
 				// Now obtain the value for the fully resolved key...
 				//根据解析到的占位符的字符串执行回调方法，获取对应的值
 				String propVal = placeholderResolver.resolvePlaceholder(placeholder);
+				//解析出来的值为空，则使用:后面的值作为默认值
 				if (propVal == null && this.valueSeparator != null) {
 					int separatorIndex = placeholder.indexOf(this.valueSeparator);
 					if (separatorIndex != -1) {

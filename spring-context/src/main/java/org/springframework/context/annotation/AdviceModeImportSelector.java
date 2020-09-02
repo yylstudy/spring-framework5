@@ -61,22 +61,24 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 	 */
 	/**
 	 * ImportSelector接口的selectImports方法
-	 * @param importingClassMetadata 这个元注解是@Import所在类的元注解对象  对于@EnableTransactionManagement来说
-	 *                               就是TransactionManagementConfigurationSelector对象
+	 * @param importingClassMetadata 这个元注解是@Import所在类的元注解对象 也就是 @EnableTransactionManagement注解所在类的
+	 *                               AnnotationMetadata
 	 * @return
 	 */
 	@Override
 	public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
+		//当前类是 TransactionManagementConfigurationSelector 其父类的泛型是 EnableTransactionManagement注解
+		//所以此annType 是EnableTransactionManagement
 		Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
 		Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
-
+		//在配置类上查找EnableTransactionManagement
 		AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(importingClassMetadata, annType);
 		if (attributes == null) {
 			throw new IllegalArgumentException(String.format(
 				"@%s is not present on importing class '%s' as expected",
 				annType.getSimpleName(), importingClassMetadata.getClassName()));
 		}
-
+		//mode 默认是proxy
 		AdviceMode adviceMode = attributes.getEnum(this.getAdviceModeAttributeName());
 		String[] imports = selectImports(adviceMode);
 		if (imports == null) {

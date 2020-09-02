@@ -40,6 +40,8 @@ import org.springframework.lang.Nullable;
 public class GenericBeanDefinition extends AbstractBeanDefinition {
 	/**
 	 * 父BeanDefinition，xml中bean标签的parent属性
+	 * 主要用于根据BeanDefinition初始化bean时，先根据当前GenericBeanDefinition查找对应属性
+	 * 如果不存在则尝试获取父BeanDefinition中的属性
 	 */
 	@Nullable
 	private String parentName;

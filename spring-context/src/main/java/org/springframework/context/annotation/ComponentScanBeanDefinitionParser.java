@@ -298,6 +298,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 		//expression的值
 		String expression = element.getAttribute(FILTER_EXPRESSION_ATTRIBUTE);
 		expression = parserContext.getReaderContext().getEnvironment().resolvePlaceholders(expression);
+		//常用的有annotation和assignable
 		if ("annotation".equals(filterType)) {
 			return new AnnotationTypeFilter((Class<Annotation>) ClassUtils.forName(expression, classLoader));
 		}

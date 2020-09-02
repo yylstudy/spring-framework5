@@ -42,7 +42,7 @@ public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilte
 
 	protected final Log logger = LogFactory.getLog(getClass());
 	/**
-	 * 是否考虑继承 false
+	 * 是否是@Inherited注解的子类 默认是false
 	 */
 	private final boolean considerInherited;
 	/**
@@ -74,7 +74,7 @@ public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilte
 		if (matchClassName(metadata.getClassName())) {
 			return true;
 		}
-		//考虑继承的情况
+		//扫描的注解是@Inherited
 		if (this.considerInherited) {
 			String superClassName = metadata.getSuperClassName();
 			if (superClassName != null) {

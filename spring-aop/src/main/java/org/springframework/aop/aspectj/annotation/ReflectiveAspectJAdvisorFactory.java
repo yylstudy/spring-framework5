@@ -130,7 +130,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 				new LazySingletonAspectInstanceFactoryDecorator(aspectInstanceFactory);
 
 		List<Advisor> advisors = new ArrayList<>();
-		//遍历增强方法
+		//遍历增强方法  排除@Pointcut注解
 		for (Method method : getAdvisorMethods(aspectClass)) {
 			//获取增强方法的增强器 InstantiationModelAwarePointcutAdvisorImpl
 			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);

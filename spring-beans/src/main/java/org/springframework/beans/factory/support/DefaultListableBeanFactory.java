@@ -155,14 +155,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	/** Resolver to use for checking if a bean definition is an autowire candidate */
 	/**
-	 * 依赖注入器，若是没有配置<context:property-placeholder/>，默认是ContextAnnotationAutowireCandidateResolver
-	 * 若是有QualifierAnnotationAutowireCandidateResolver
+	 * 依赖注入器，默认是ContextAnnotationAutowireCandidateResolver
 	 */
 	private AutowireCandidateResolver autowireCandidateResolver = new SimpleAutowireCandidateResolver();
 
 	/** Map from dependency type to corresponding autowired value */
 	/**
-	 * 解析器依赖，这个用于普通类中注入BeanFactory和ApplicationContext
+	 * 已解析的依赖集合
 	 * BeanFactory--->DefaultListableBeanFactory
 	 * ResourceLoader--->AbstractApplicationContext
 	 * ApplicationEventPublisher--->AbstractApplicationContext
@@ -311,9 +310,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
-	 * Set a custom autowire candidate resolver for this BeanFactory to use
-	 * when deciding whether a bean definition should be considered as a
-	 * candidate for autowiring.
+	 * 设置autowired的匹配处理器
 	 */
 	public void setAutowireCandidateResolver(final AutowireCandidateResolver autowireCandidateResolver) {
 		Assert.notNull(autowireCandidateResolver, "AutowireCandidateResolver must not be null");
@@ -325,6 +322,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}, getAccessControlContext());
 			}
 			else {
+				//执行此处理器的setBeanFactory方法
 				((BeanFactoryAware) autowireCandidateResolver).setBeanFactory(this);
 			}
 		}
@@ -824,6 +822,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
 			//非抽象、单例、非懒加载则先获取bean
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				//是FacoryBean
 				if (isFactoryBean(beanName)) {
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
@@ -894,7 +893,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						"Validation of bean definition failed", ex);
 			}
 		}
-		//容器中是否存在该beanName
+		//容器中是否存在该beanName，默认情况下，spring是会覆盖bean的
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
 		if (existingDefinition != null) {
 			//如果容器中已存在并且不允许bean同名覆盖（默认是允许的），则抛出异常
@@ -946,7 +945,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			else {
-				// Still in startup registration phase
+				//否则添加一些映射
 				this.beanDefinitionMap.put(beanName, beanDefinition);
 				this.beanDefinitionNames.add(beanName);
 				this.manualSingletonNames.remove(beanName);
@@ -1165,6 +1164,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			@Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
 		//初始化参数名称发现器
 		descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
+		//属性类型是Optional
 		if (Optional.class == descriptor.getDependencyType()) {
 			return createOptionalDependency(descriptor, requestingBeanName);
 		}
@@ -1278,7 +1278,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 				result = null;
 			}
-			//如果最终选择的bean实例和type类型符合，抛出异常
+			//如果最终选择的bean实例和type类型不符合，抛出异常
 			if (!ClassUtils.isAssignableValue(type, result)) {
 				throw new BeanNotOfRequiredTypeException(autowiredBeanName, type, instanceCandidate.getClass());
 			}

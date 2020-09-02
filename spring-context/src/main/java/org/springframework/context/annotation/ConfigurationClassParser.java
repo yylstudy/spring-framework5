@@ -135,7 +135,8 @@ class ConfigurationClassParser {
 	 */
 	private final BeanDefinitionRegistry registry;
 	/**
-	 * component扫描解析器 ComponentScanAnnotationParser
+	 * @Component 扫描解析器 ComponentScanAnnotationParser
+	 * xml中配置的component-scan的扫描器为ComponentScanBeanDefinitionParser
 	 */
 	private final ComponentScanAnnotationParser componentScanParser;
 	/**
@@ -146,7 +147,9 @@ class ConfigurationClassParser {
 	 * 已解析过的ConfigurationClass 类缓存
 	 */
 	private final Map<ConfigurationClass, ConfigurationClass> configurationClasses = new LinkedHashMap<>();
-
+	/**
+	 * 存在已解析过的父类
+	 */
 	private final Map<String, ConfigurationClass> knownSuperclasses = new HashMap<>();
 	/**
 	 * 加载过的@PropertySource的资源名称
@@ -157,7 +160,8 @@ class ConfigurationClassParser {
 	 */
 	private final ImportStack importStack = new ImportStack();
 	/**
-	 * 延迟的ImportSelectorHolder 初始化为empty的ArrayList，存放解析出来的ImportSelector类
+	 * 延迟的ImportSelectorHolder 初始化为empty的ArrayList，
+	 * 存放解析出来的实现了DeferredImportSelector 接口的 ImportSelector类
 	 */
 	@Nullable
 	private List<DeferredImportSelectorHolder> deferredImportSelectors;
@@ -176,7 +180,7 @@ class ConfigurationClassParser {
 		this.environment = environment;
 		this.resourceLoader = resourceLoader;
 		this.registry = registry;
-		//component扫描解析器
+		//componentScan注解扫描解析器
 		this.componentScanParser = new ComponentScanAnnotationParser(
 				environment, resourceLoader, componentScanBeanNameGenerator, registry);
 		//条件 这个应该是处理@Conditional注解的
@@ -394,7 +398,7 @@ class ConfigurationClassParser {
 		//添加接口默认方法中的@Bean方法
 		processInterfaces(configClass, sourceClass);
 
-		// Process superclass, if any
+		// 处理父类。如果存在的话
 		if (sourceClass.getMetadata().hasSuperClass()) {
 			String superclass = sourceClass.getMetadata().getSuperClassName();
 			if (superclass != null && !superclass.startsWith("java") &&
@@ -603,7 +607,7 @@ class ConfigurationClassParser {
 	private Set<SourceClass> getImports(SourceClass sourceClass) throws IOException {
 		Set<SourceClass> imports = new LinkedHashSet<>();
 		Set<SourceClass> visited = new LinkedHashSet<>();
-		//收集import，获取@Import注解对应的Class的SourceClass
+		//收集import，获取@Import注解value方法值的class的SourceClass
 		collectImports(sourceClass, imports, visited);
 		return imports;
 	}
@@ -710,7 +714,7 @@ class ConfigurationClassParser {
 	 * 处理@Import注解
 	 * @param configClass @Import注解所在类ConfigurationClass
 	 * @param currentSourceClass @Import注解所在类的SourceClass
-	 * @param importCandidates @Import注解对应的类的SourceClass
+	 * @param importCandidates @Import注解value方法值的SourceClass
 	 * @param checkForCircularImports true
 	 */
 	private void processImports(ConfigurationClass configClass, SourceClass currentSourceClass,
@@ -732,7 +736,7 @@ class ConfigurationClassParser {
 					//如果@Import注解中的值的类实现了 ImportSelector接口，这里可以
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
-						//获取@Import注解值的Class对象
+						//获取@Import注解value方法的Class对象
 						Class<?> candidateClass = candidate.loadClass();
 						ImportSelector selector = BeanUtils.instantiateClass(candidateClass, ImportSelector.class);
 						//执行Aware接口的方法
@@ -747,7 +751,9 @@ class ConfigurationClassParser {
 						else {
 							//否则直接调用其selectImports方法，注意这个参数是@Import注解所在类的元注解
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
+							//将@Import注解值的类的selectImports方法的返回值转化为SourceClass
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames);
+							//递归解析
 							processImports(configClass, currentSourceClass, importSourceClasses, false);
 						}
 					}
@@ -887,8 +893,8 @@ class ConfigurationClassParser {
 	@SuppressWarnings("serial")
 	private static class ImportStack extends ArrayDeque<ConfigurationClass> implements ImportRegistry {
 		/**
-		 * 存放需要注册为bean的@Import注解中的类（未实现ImportSelector接口和ImportBeanDefinitionRegistrar接口）
-		 * @Import 注解中的类和@Import注解所在类的注解元数据的映射集合
+		 * 存放需要注册为bean的@Import注解中的类的类名（未实现ImportSelector接口和ImportBeanDefinitionRegistrar接口）
+		 * 和其 @Import注解所在类的注解元数据的映射集合
 		 */
 		private final MultiValueMap<String, AnnotationMetadata> imports = new LinkedMultiValueMap<>();
 
@@ -1036,7 +1042,7 @@ class ConfigurationClassParser {
 
 		public SourceClass(Object source) {
 			this.source = source;
-			//如果是class就是基于xml方式的，那么就创建StandardAnnotationMetadata
+			//创建注解类的AnnotationMetadata
 			if (source instanceof Class) {
 				this.metadata = new StandardAnnotationMetadata((Class<?>) source, true);
 			}

@@ -95,7 +95,7 @@ class ConditionEvaluator {
 		//若配置Phase为空，则需要解析
 		if (phase == null) {
 			if (metadata instanceof AnnotationMetadata &&
-					//是否是配置的候选者
+					//是否是配置类 @Configuration @Component @ComponentScan @Import @ImportResource
 					ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
 				return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);
 			}
@@ -139,7 +139,7 @@ class ConditionEvaluator {
 	private List<String[]> getConditionClasses(AnnotatedTypeMetadata metadata) {
 		//获取@Conditional注解的Map，主要就是获取value方法的condition类名的字符串
 		MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(Conditional.class.getName(), true);
-
+		//获取value方法的值（也就是Condition类名的字符串）
 		Object values = (attributes != null ? attributes.get("value") : null);
 		return (List<String[]>) (values != null ? values : Collections.emptyList());
 	}

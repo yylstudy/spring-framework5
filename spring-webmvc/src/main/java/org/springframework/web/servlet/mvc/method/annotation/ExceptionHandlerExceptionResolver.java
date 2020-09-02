@@ -508,13 +508,16 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 			ExceptionHandlerMethodResolver resolver = this.exceptionHandlerCache.get(handlerType);
 			if (resolver == null) {
 				//创建当前bean中存在的ExceptionHandler方法的ExceptionHandlerMethodResolver
+				//创建当前HandlerMethod的ExceptionHandlerMethodResolver
 				resolver = new ExceptionHandlerMethodResolver(handlerType);
 				this.exceptionHandlerCache.put(handlerType, resolver);
 			}
 			//使用当前bean中存在的ExceptionHandler的处理器去解析这个异常
+			//所以mvc中当发生异常时，先查找当前Controller是否存在@Exceptionhandler注解，如果存在则直接返回此@Exceptionhandler
+			//的方法，否则再去遍历容器中所有的@ControllerAdvice中的@ExceptionHandler的方法
 			Method method = resolver.resolveMethod(exception);
 			if (method != null) {
-				//创建ServletInvocableHandlerMethod
+				//当前Controller存在@ExceptionHandler
 				return new ServletInvocableHandlerMethod(handlerMethod.getBean(), method);
 			}
 			// For advice applicability check below (involving base packages, assignable types

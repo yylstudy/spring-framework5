@@ -200,7 +200,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Nullable
 	private Thread shutdownHook;
 	/**
-	 * 资源解析器
+	 * 资源解析器 PathMatchingResourcePatternResolver
 	 */
 	/** ResourcePatternResolver used by this context */
 	private ResourcePatternResolver resourcePatternResolver;
@@ -249,6 +249,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	public AbstractApplicationContext(@Nullable ApplicationContext parent) {
 		this();
+		//设置父容器
 		setParent(parent);
 	}
 
@@ -508,6 +509,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		if (parent != null) {
 			Environment parentEnvironment = parent.getEnvironment();
 			if (parentEnvironment instanceof ConfigurableEnvironment) {
+				//父容器的环境对象为ConfigurableEnvironment（常用的有StandardEnvironment）
 				getEnvironment().merge((ConfigurableEnvironment) parentEnvironment);
 			}
 		}
@@ -671,6 +673,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 		//刷新BeanFactory
 		refreshBeanFactory();
+		//获取BeanFactory
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
 		if (logger.isDebugEnabled()) {
 			logger.debug("Bean factory for " + getDisplayName() + ": " + beanFactory);
@@ -931,6 +934,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// (such as a PropertyPlaceholderConfigurer bean) registered any before:
 		// at this point, primarily for resolution in annotation attribute values.
 		//如果容器中没有处理配置文件的配置类 例如 PropertyPlaceholderConfigurer，那么就添加一个默认的
+		//如果配置了property-placeholder那么这个在解析PropertySourcesPlaceholderConfigurer(property-placeholder标签解析的目标类)
+		//就会生成一个
 		if (!beanFactory.hasEmbeddedValueResolver()) {
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
 		}

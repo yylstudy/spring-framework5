@@ -313,7 +313,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 			for (LifecycleElement element : this.initMethods) {
 				String methodIdentifier = element.getIdentifier();
 				if (!beanDefinition.isExternallyManagedInitMethod(methodIdentifier)) {
-					//将@PostConstruct的方法注册到BeanDefinition
+					//将@PostConstruct的方法注册到RootBeanDefinition
 					beanDefinition.registerExternallyManagedInitMethod(methodIdentifier);
 					checkedInitMethods.add(element);
 					if (logger.isDebugEnabled()) {

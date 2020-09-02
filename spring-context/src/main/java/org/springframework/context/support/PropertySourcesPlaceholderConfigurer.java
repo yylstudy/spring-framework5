@@ -63,6 +63,7 @@ import org.springframework.util.StringValueResolver;
  */
 
 /**
+ * spring中的<context:property-placeholder> 标签的配置类
  * spring boot 中配置文件的处理对象  主要处理@Value注解
  * 由于PropertySourcesPlaceholderConfigurer实现了BeanFactoryPostProcessor接口，所以在spring初始化的时候
  * 会调用其postProcessBeanFactory 方法，实现了BeanNameAware接口，所以会调用setBeanName方法区设置beanName
@@ -159,7 +160,7 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 				);
 			}
 			try {
-				//添加本地properties
+				//添加本地PropertySource对象，properties文件的值是在这里解析到Properties对象中的
 				PropertySource<?> localPropertySource =
 						new PropertiesPropertySource(LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME, mergeProperties());
 				if (this.localOverride) {
@@ -173,7 +174,9 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 				throw new BeanInitializationException("Could not load properties", ex);
 			}
 		}
-		//处理properties
+		//后置处理容器中bean的${}表达式，所以对于 property-placeholder来说，并不是将properties
+		//对象添加到Environment的全局propertySources中，也不是在实例化bean之前解析的
+		//而是在这里解析的
 		processProperties(beanFactory, new PropertySourcesPropertyResolver(this.propertySources));
 		this.appliedPropertySources = this.propertySources;
 	}
@@ -204,7 +207,7 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 			}
 			return (resolved.equals(nullValue) ? null : resolved);
 		};
-		//处理properties
+		//后置处理容器中的${}表达式
 		doProcessProperties(beanFactoryToProcess, valueResolver);
 	}
 

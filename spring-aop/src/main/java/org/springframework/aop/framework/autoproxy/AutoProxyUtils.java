@@ -74,6 +74,7 @@ public abstract class AutoProxyUtils {
 			BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
 			//这个一般是不对的，因为前面暴露被代理对象是在RootBeanDefinition的属性中，这里是直接获取BeanDefinitionMap中的
 			//所以只有在beanDefinitionMap中的BeanDefinition对象和其RootBeanDefinition是同一个对象才为true
+			//当前bean为full模式也为true，也就是当前bean存在@Configuration注解
 			return Boolean.TRUE.equals(bd.getAttribute(PRESERVE_TARGET_CLASS_ATTRIBUTE));
 		}
 		return false;

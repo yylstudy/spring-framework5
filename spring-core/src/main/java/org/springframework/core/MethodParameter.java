@@ -60,7 +60,7 @@ public class MethodParameter {
 
 	private static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
 	/**
-	 * 方法或者构造器对象
+	 * 参数所在方法或者构造器对象
 	 */
 	private final Executable executable;
 	/**

@@ -123,9 +123,11 @@ public class BeanDefinitionReaderUtils {
 		String generatedBeanName = definition.getBeanClassName();
 		//若beanDefinition的class不存在，则从父类或者其工厂bean中获取
 		if (generatedBeanName == null) {
+			//尝试从parent属性中获取
 			if (definition.getParentName() != null) {
 				generatedBeanName = definition.getParentName() + "$child";
 			}
+			//从factory-bean获取
 			else if (definition.getFactoryBeanName() != null) {
 				generatedBeanName = definition.getFactoryBeanName() + "$created";
 			}

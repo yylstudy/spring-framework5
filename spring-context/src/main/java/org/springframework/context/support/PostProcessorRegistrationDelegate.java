@@ -55,7 +55,7 @@ final class PostProcessorRegistrationDelegate {
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
-		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
+		// 已处理的BeanFactoryPostProcessor
 		Set<String> processedBeans = new HashSet<>();
 		//DefaultListableBeanFactory 是BeanDefinitionRegistry的子类
 		if (beanFactory instanceof BeanDefinitionRegistry) {
@@ -83,7 +83,8 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
-			// 从容器中获取对应类型的beanName，这里主要是 ConfigurationClassPostProcessor
+			// 从容器中获取对应类型的beanName，这里主要是 ConfigurationClassPostProcessor，这个方法已经初始化过
+			//BeanDefinitionRegistryPostProcessor的实例了
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {

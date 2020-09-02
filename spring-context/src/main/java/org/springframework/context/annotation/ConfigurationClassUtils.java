@@ -97,14 +97,14 @@ abstract class ConfigurationClassUtils {
 		}
 
 		AnnotationMetadata metadata;
-		//注解扫描类（ScannedGenericBeanDefinition）
+		//注解扫描类（ScannedGenericBeanDefinition、AnnotatedGenericBeanDefinition）
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
 			//component-scan的类的注解元数据已经解析过了  是个AnnotationMetadataReadingVisitor
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
 		}
-		//xml配置的类
+		//
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
 			Class<?> beanClass = ((AbstractBeanDefinition) beanDef).getBeanClass();
 			//创建一个标准的注解元数据
@@ -112,6 +112,7 @@ abstract class ConfigurationClassUtils {
 		}
 		else {
 			try {
+				//和component-scan一样，创建SimpleMetadataReader
 				MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(className);
 				metadata = metadataReader.getAnnotationMetadata();
 			}

@@ -940,7 +940,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 								logger.debug("Participating transaction failed - marking existing transaction as rollback-only");
 							}
 							//设置只允许回滚，也就是不允许提交
-							//这里也就是嵌套事务 trty catch 抛出异常
+							//这里也就是嵌套事务 try catch 抛出异常
 							//Transaction rolled back because it has been marked as rollback-only
 							//的根源了
 							doSetRollbackOnly(status);

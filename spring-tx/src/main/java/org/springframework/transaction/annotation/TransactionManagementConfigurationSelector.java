@@ -41,7 +41,7 @@ public class TransactionManagementConfigurationSelector extends AdviceModeImport
 	 * {@code ASPECTJ} values of {@link EnableTransactionManagement#mode()}, respectively
 	 */
 	/**
-	 * ImportSelector接口逇selectImports方法
+	 * ImportSelector接口的selectImports方法
 	 * @param adviceMode the value of the {@linkplain #getAdviceModeAttributeName()
 	 * advice mode attribute} for the annotation specified via generics.
 	 * @return
@@ -49,7 +49,7 @@ public class TransactionManagementConfigurationSelector extends AdviceModeImport
 	@Override
 	protected String[] selectImports(AdviceMode adviceMode) {
 		switch (adviceMode) {
-			//
+			//默认是proxy
 			case PROXY:
 				return new String[] {AutoProxyRegistrar.class.getName(), ProxyTransactionManagementConfiguration.class.getName()};
 			case ASPECTJ:

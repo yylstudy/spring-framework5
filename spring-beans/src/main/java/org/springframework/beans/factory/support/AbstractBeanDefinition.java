@@ -147,7 +147,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Nullable
 	private String scope = SCOPE_DEFAULT;
 	/**
-	 * 是否抽象，bean标签的abstract属性
+	 * 是否抽象，bean标签的abstract属性 如果为true，那么不会实例化这个bean
 	 */
 	private boolean abstractFlag = false;
 	/**
@@ -234,7 +234,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Nullable
 	private String description;
 	/**
-	 * 资源文件
+	 * 资源文件 对于ScannedGenericBeanDefinition来说就是class的Resource
 	 */
 	@Nullable
 	private Resource resource;

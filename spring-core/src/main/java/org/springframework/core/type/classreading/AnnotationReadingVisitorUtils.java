@@ -54,9 +54,9 @@ abstract class AnnotationReadingVisitorUtils {
 			@Nullable ClassLoader classLoader, AnnotationAttributes original, boolean classValuesAsString) {
 		//新建一个AnnotationAttributes
 		AnnotationAttributes result = new AnnotationAttributes(original);
-		//后置处理AnnotationAttributes
+		//处理AnnotationAttributes
 		AnnotationUtils.postProcessAnnotationAttributes(annotatedElement, result, classValuesAsString);
-
+		//遍历注解对象
 		for (Map.Entry<String, Object> entry : result.entrySet()) {
 			try {
 				Object value = entry.getValue();

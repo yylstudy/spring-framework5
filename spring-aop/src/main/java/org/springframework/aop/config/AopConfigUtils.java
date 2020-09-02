@@ -145,6 +145,9 @@ public abstract class AopConfigUtils {
 				//容器中的优先级
 				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
 				//当前的优先级
+				//AnnotationAwareAspectJAutoProxyCreator 优先级最高
+				//AspectJAwareAdvisorAutoProxyCreator 次之
+				//InfrastructureAdvisorAutoProxyCreator 最低
 				int requiredPriority = findPriorityForClass(cls);
 				if (currentPriority < requiredPriority) {
 					apcDefinition.setBeanClassName(cls.getName());

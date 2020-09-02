@@ -82,7 +82,7 @@ class ConfigurationClassBeanDefinitionReader {
 
 	private final Environment environment;
 	/**
-	 * @Import 的beanName的生成器
+	 * @Import 的beanName的生成器 默认是beanDefinition的beanClassName
 	 */
 	private final BeanNameGenerator importBeanNameGenerator;
 	/**
@@ -150,7 +150,8 @@ class ConfigurationClassBeanDefinitionReader {
 			this.importRegistry.removeImportingClass(configClass.getMetadata().getClassName());
 			return;
 		}
-		//注册需要被实例化的 @Import注解的类
+		//@Import不为空，说明当前是@Import注解值的ConfigurationClass 其importedBy属性包含的是
+		//@Import所在类的ConfigurationClass
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
@@ -168,6 +169,7 @@ class ConfigurationClassBeanDefinitionReader {
 	 * Register the {@link Configuration} class itself as a bean definition.
 	 */
 	private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
+		//获取@Impoort注解值的ConfigurationClass中的AnnotationMetadata
 		AnnotationMetadata metadata = configClass.getMetadata();
 		//创建一个AnnotatedGenericBeanDefinition
 		AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
@@ -475,6 +477,7 @@ class ConfigurationClassBeanDefinitionReader {
 		public boolean shouldSkip(ConfigurationClass configClass) {
 			Boolean skip = this.skipped.get(configClass);
 			if (skip == null) {
+				//当前ConfigurationClass是由@Import导入进来的
 				if (configClass.isImported()) {
 					boolean allSkipped = true;
 					for (ConfigurationClass importedBy : configClass.getImportedBy()) {

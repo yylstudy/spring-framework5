@@ -78,6 +78,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 						//AspectJMethodBeforeAdvice 不是 MethodInterceptor 经过适配转成MethodBeforeAdviceInterceptor
 						//AspectJAfterAdvice 是 MethodInterceptor
 						//AspectJAroundAdvice 是 MethodInterceptor
+						//事务拦截器 TransactionInterceptor
 						MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 						if (mm.isRuntime()) {
 							// Creating a new object instance in the getInterceptors() method

@@ -187,7 +187,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		MethodInvocation invocation;
 		Object oldProxy = null;
 		boolean setProxyContext = false;
-
+		//SingletonTargetSource，包含被代理的
 		TargetSource targetSource = this.advised.targetSource;
 		Object target = null;
 
@@ -227,10 +227,14 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 
 			// Get the interception chain for this method.
 			//根据方法和被代理类的class获取增强器和通知
+			//AspectJMethodBeforeAdvice 不是 MethodInterceptor 经过适配转成MethodBeforeAdviceInterceptor
+			//AspectJAfterAdvice 是 MethodInterceptor
+			//AspectJAroundAdvice 是 MethodInterceptor
 			List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
 			// Check whether we have any advice. If we don't, we can fallback on direct
 			// reflective invocation of the target, and avoid creating a MethodInvocation.
+			//执行的调用链为空，则直接使用调用被代理对象的方法
 			if (chain.isEmpty()) {
 				// We can skip creating a MethodInvocation: just invoke the target directly
 				// Note that the final invoker must be an InvokerInterceptor so we know it does

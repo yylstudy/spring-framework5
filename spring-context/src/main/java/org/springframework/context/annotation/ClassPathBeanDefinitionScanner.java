@@ -371,7 +371,8 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		if (originatingDef != null) {
 			existingDef = originatingDef;
 		}
-		//检查是否是ScannedGenericBeanDefinition 也就是scan扫描出来的BeanDefinition
+		//判断容器中是否存在此BeanDefinition，如果不是ScannedGenericBeanDefinition则直接返回false，也就是
+		//当前扫描出来的BeanDefinition不匹配 如果是则校验其它属性
 		if (isCompatible(beanDefinition, existingDef)) {
 			return false;
 		}
@@ -393,6 +394,8 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 */
 	protected boolean isCompatible(BeanDefinition newDefinition, BeanDefinition existingDefinition) {
 		return (!(existingDefinition instanceof ScannedGenericBeanDefinition) ||  // explicitly registered overriding bean
+				//比较source对象，是否相同，如果是@ComponentScan和component-scan扫描出来的source对象是相等的
+				//所以同一个多出配置@ComponentScan或者component-scan 在这里就为true
 				(newDefinition.getSource() != null && newDefinition.getSource().equals(existingDefinition.getSource())) ||  // scanned same file twice
 				newDefinition.equals(existingDefinition));  // scanned equivalent class twice
 	}

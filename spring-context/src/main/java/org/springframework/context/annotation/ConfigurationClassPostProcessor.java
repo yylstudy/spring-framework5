@@ -119,8 +119,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	private ConfigurationClassBeanDefinitionReader reader;
 
 	private boolean localBeanNameGeneratorSet = false;
-
-	/* Using short class names as default bean names */
+	/**
+	 * 默认的注解类beanName生成器
+	 */
 	private BeanNameGenerator componentScanBeanNameGenerator = new AnnotationBeanNameGenerator();
 
 	/* Using fully qualified class names as default bean names */
@@ -281,7 +282,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
-			//检查获取注解类的候选者
+			//添加配置类的BeanDefinition 包含@Configuration、@Component、@ComponentScan、@Import、@ImportSource、@Bean
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
@@ -346,7 +347,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			alreadyParsed.addAll(configClasses);
 			//清空跳出循环
 			candidates.clear();
-			//
+			//此次有扫描出未解析的bean
 			if (registry.getBeanDefinitionCount() > candidateNames.length) {
 				String[] newCandidateNames = registry.getBeanDefinitionNames();
 				Set<String> oldCandidateNames = new HashSet<>(Arrays.asList(candidateNames));

@@ -90,9 +90,7 @@ public class OrderComparator implements Comparator<Object> {
 		else if (p2 && !p1) {
 			return 1;
 		}
-
-		// Direct evaluation instead of Integer.compareTo to avoid unnecessary object creation.
-		//获取order值
+		//都实现了PriorityOrdered接口 ，那么比较order值
 		int i1 = getOrder(o1, sourceProvider);
 		int i2 = getOrder(o2, sourceProvider);
 		return (i1 < i2) ? -1 : (i1 > i2) ? 1 : 0;

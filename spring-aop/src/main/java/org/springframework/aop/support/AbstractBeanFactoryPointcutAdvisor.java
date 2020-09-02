@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public abstract class AbstractBeanFactoryPointcutAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
 	/**
-	 * advice的名称  TransactionInterceptor
+	 *   TransactionInterceptor的名称
 	 */
 	@Nullable
 	private String adviceBeanName;

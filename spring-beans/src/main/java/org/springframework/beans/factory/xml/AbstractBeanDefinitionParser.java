@@ -57,9 +57,9 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
 	public static final String NAME_ATTRIBUTE = "name";
 
 	/**
-	 * 解析
-	 * @param element the element that is to be parsed into one or more {@link BeanDefinition BeanDefinitions}
-	 * @param parserContext the object encapsulating the current state of the parsing process;
+	 * 自定义标签的默认标签解析，就是创建对应的BeanDefinition
+	 * @param element 自定义的标签对象
+	 * @param parserContext 解析器上下文
 	 * provides access to a {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}
 	 * @return
 	 */
@@ -70,6 +70,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
 		AbstractBeanDefinition definition = parseInternal(element, parserContext);
 		if (definition != null && !parserContext.isNested()) {
 			try {
+				//获取beanName
 				String id = resolveId(element, definition, parserContext);
 				if (!StringUtils.hasText(id)) {
 					parserContext.getReaderContext().error(
@@ -77,13 +78,16 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
 									+ "' when used as a top-level tag", element);
 				}
 				String[] aliases = null;
+				//是否解析别名
 				if (shouldParseNameAsAliases()) {
 					String name = element.getAttribute(NAME_ATTRIBUTE);
 					if (StringUtils.hasLength(name)) {
 						aliases = StringUtils.trimArrayElements(StringUtils.commaDelimitedListToStringArray(name));
 					}
 				}
+				//创建一个BeanDefinitionHolder
 				BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, id, aliases);
+				//注册此BeanDefinitionHolder
 				registerBeanDefinition(holder, parserContext.getRegistry());
 				if (shouldFireEvents()) {
 					BeanComponentDefinition componentDefinition = new BeanComponentDefinition(holder);
@@ -115,7 +119,8 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
 	 */
 	protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)
 			throws BeanDefinitionStoreException {
-
+		//是否应该生成id，PropertyPlaceholderBeanDefinitionParser这个是为true，因为这个标签没有id class name等属性
+		//所以beanName应该自动生成
 		if (shouldGenerateId()) {
 			return parserContext.getReaderContext().generateBeanName(definition);
 		}

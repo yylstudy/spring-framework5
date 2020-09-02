@@ -45,7 +45,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 
 	/** Map from alias to canonical name */
 	/**
-	 * beanName和其别名的映射集合
+	 * 别名和其beanName的映射集合
 	 */
 	private final Map<String, String> aliasMap = new ConcurrentHashMap<>(16);
 
@@ -211,6 +211,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 		}
 	}
 
+
 	/**
 	 * 规范名称，这里主要是从找到别名指向的beanName
 	 * Determine the raw name, resolving aliases to canonical names.
@@ -230,5 +231,4 @@ public class SimpleAliasRegistry implements AliasRegistry {
 		while (resolvedName != null);
 		return canonicalName;
 	}
-
 }

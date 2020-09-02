@@ -209,6 +209,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 			//AspectJAfterAdvice
 			//AspectAroundAdvice
 			//MethodBeforeAdviceInterceptor
+			//如果是事务的话存在 TransactionInterceptor
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}

@@ -38,12 +38,11 @@ import org.springframework.util.ClassUtils;
  */
 public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter {
 	/**
-	 * 需要包含的注解 常用的
-	 * @Component
+	 * 需要包含的注解 常用的 @Component
 	 */
 	private final Class<? extends Annotation> annotationType;
 	/**
-	 * 是否包含元注解，一般为true
+	 * 是否考虑元注解，也就是复合注解，对于@Component注解来说为true
 	 */
 	private final boolean considerMetaAnnotations;
 

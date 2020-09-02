@@ -364,6 +364,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	public boolean acceptsProfiles(String... profiles) {
 		Assert.notEmpty(profiles, "Must specify at least one profile");
 		for (String profile : profiles) {
+			//profile支持 !prod这种写法 表示非
 			if (StringUtils.hasLength(profile) && profile.charAt(0) == '!') {
 				if (!isProfileActive(profile.substring(1))) {
 					return true;
@@ -489,13 +490,19 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 		}
 	}
 
+	/**
+	 * 合并父容器的容器对象
+	 * @param parent the environment to merge with
+	 */
 	@Override
 	public void merge(ConfigurableEnvironment parent) {
+		//添加propertySource对象
 		for (PropertySource<?> ps : parent.getPropertySources()) {
 			if (!this.propertySources.contains(ps.getName())) {
 				this.propertySources.addLast(ps);
 			}
 		}
+		//合并父容器的 profile
 		String[] parentActiveProfiles = parent.getActiveProfiles();
 		if (!ObjectUtils.isEmpty(parentActiveProfiles)) {
 			synchronized (this.activeProfiles) {

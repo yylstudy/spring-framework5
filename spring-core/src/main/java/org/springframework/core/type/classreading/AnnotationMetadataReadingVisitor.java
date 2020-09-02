@@ -61,7 +61,7 @@ public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisito
 	 */
 	protected final Set<String> annotationSet = new LinkedHashSet<>(4);
 	/**
-	 * 类上注解对应其注解中的注解的映射集合
+	 * 类上注解对应其注解中的注解（多层次的元注解）的映射集合
 	 */
 	protected final Map<String, Set<String>> metaAnnotationMap = new LinkedHashMap<>(4);
 

@@ -113,7 +113,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/** Parent bean factory, for bean inheritance support */
 	/**
-	 * 父类BeanFactory
+	 * 父类BeanFactory 这里指的是父的DefaultListableBeanFactory，ApplicationContext的父的ApplicationContext
+	 * 有另外的一个叫parent的ApplicationContext
 	 */
 	@Nullable
 	private BeanFactory parentBeanFactory;
@@ -167,19 +168,21 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	private final List<StringValueResolver> embeddedValueResolvers = new LinkedList<>();
 
-	/** BeanPostProcessors to apply in createBean */
-	/**AnnotationAwareAspectJAutoProxyCreator 处理AOP
-	 * bean后置处理器 BeanPostProcessor集合
-	 * ApplicationContextAwareProcessor  处理Aware接口，我们常用的ApplicationContextAware接口的setApplicationContext方法
+	/**
+	 * bean的后置处理器
+	 * AnnotationAwareAspectJAutoProxyCreator 处理AOP
+	 * ApplicationContextAwareProcessor 处理Aware接口，我们常用的ApplicationContextAware接口的setApplicationContext方法
 	 * 									 就是这个调用的
+	 * ApplicationListenerDetector
 	 * ConfigurationClassPostProcessor.ImportAwareBeanPostProcessor 处理@Enable的一些注解
-	 * AnnotationAwareAspectAutoProxyCreator 处理Aop
-	 * ApplicationListenerDetector 处理事件监听
 	 * AutowiredAnnotationBeanPostProcessor 处理@Autowired注解
 	 * RequiredAnnotationBeanPostProcessor 处理@Required
-	 * CommonAnnotationBeanPostProcessor 处理@Value @Resouce
-	 * ImportAwareBeanPostProcessor
+	 * CommonAnnotationBeanPostProcessor 处理@Value @Resouce、@PostConstruct
+	 * ApplicationListenerDetector 处理事件监听
+	 *
 	 */
+
+
 	private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
 	/** Indicates whether any InstantiationAwareBeanPostProcessors have been registered */
@@ -200,13 +203,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/** Map from bean name to merged RootBeanDefinition */
 	/**
-	 * 容器中的RootBeanDefinition的缓存
+	 * 容器中的beanName和其RootBeanDefinition的缓存
 	 */
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
 
 	/** Names of beans that have already been created at least once */
 	/**
-	 * 已经实例化bean的beanName
+	 * 已经开始实例化bean的beanName
 	 */
 	private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
@@ -313,6 +316,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
+			//原型的bean是否正在创建中
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
@@ -354,7 +358,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				if (dependsOn != null) {
 					//dependsOn的不为空
 					for (String dep : dependsOn) {
-						//如果是依赖的
+						//检测是否循环dependsOn
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
@@ -1355,12 +1359,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			if (mbd == null) {
+				//parent-name为空
 				if (bd.getParentName() == null) {
 					// Use copy of given root bean definition.
 					if (bd instanceof RootBeanDefinition) {
 						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
 					}
 					else {
+						//GenericBeanDefinition转化为RootBeaDefinition
 						mbd = new RootBeanDefinition(bd);
 					}
 				}
@@ -1368,8 +1374,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// Child bean definition: needs to be merged with parent.
 					BeanDefinition pbd;
 					try {
+						//获取父beanName
 						String parentBeanName = transformedBeanName(bd.getParentName());
 						if (!beanName.equals(parentBeanName)) {
+							//获取父的beanDefinition
 							pbd = getMergedBeanDefinition(parentBeanName);
 						}
 						else {
@@ -1389,7 +1397,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
 					}
 					// Deep copy with overridden values.
+					//将父的BeanDefinition转为RootBeanDefinition
 					mbd = new RootBeanDefinition(pbd);
+					//子类重写
 					mbd.overrideFrom(bd);
 				}
 
@@ -1755,9 +1765,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected Object getObjectForBeanInstance(
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
-
-		// Don't let calling code try to dereference the factory if the bean isn't a factory.
-		//beanName是否是&开头，若是&开头，则直接返回factoryBean本身
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;

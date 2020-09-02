@@ -146,8 +146,9 @@ public class TransactionTemplate extends DefaultTransactionDefinition
 			return ((CallbackPreferringPlatformTransactionManager) this.transactionManager).execute(this, action);
 		}
 		else {
-			//创建一个事务状态，这里可以看到，外部存在事务，那么即使使用TransactionTemplate，也是一个事务，
-			//
+			//创建一个事务状态，这里可以看到，外部存在事务，那么即使使用TransactionTemplate，
+			//整体来说也是同一个事务，因为TransactionTemplate的传播特性默认是
+			//TransactionDefinition.PROPAGATION_REQUIRED
 			TransactionStatus status = this.transactionManager.getTransaction(this);
 			T result;
 			try {

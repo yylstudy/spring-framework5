@@ -111,10 +111,12 @@ public abstract class GenericTypeResolver {
 	 */
 	@Nullable
 	public static Class<?> resolveTypeArgument(Class<?> clazz, Class<?> genericIfc) {
+		//获取父类的ResolvableType 也就是 AdviceModeImportSelector<EnableTransactionManagement>
 		ResolvableType resolvableType = ResolvableType.forClass(clazz).as(genericIfc);
 		if (!resolvableType.hasGenerics()) {
 			return null;
 		}
+		//再获取泛型 也就是 EnableTransactionManagement
 		return getSingleGeneric(resolvableType);
 	}
 

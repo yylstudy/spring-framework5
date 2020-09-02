@@ -65,6 +65,8 @@ final class ConfigurationClass {
 	/**
 	 * 当前的ConfigurationClass是@Import注解导入进来的
 	 * 所以importedBy属性就是记录是由哪些@Import注解所在类的ConfigurationClass导入进来的
+	 * 如果当前的importedBy不为空，那么说明此ConfiguraionClass是@Import注解值的类的ConfigurationClass
+	 * 其metadata属性是@Import注解值的AnnotationMetadataReadingVisitor或者StandardAnnotationMetadata
 	 */
 	private final Set<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
 	/**

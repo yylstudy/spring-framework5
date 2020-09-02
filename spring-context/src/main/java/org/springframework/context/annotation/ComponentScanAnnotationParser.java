@@ -82,8 +82,8 @@ class ComponentScanAnnotationParser {
 
 	/**
 	 * 解析@ComponentScan注解
-	 * @param componentScan
-	 * @param declaringClass
+	 * @param componentScan @ComponentScan注解的AnnotationAttributes对象
+	 * @param declaringClass @ComponentScan注解所在的类名
 	 * @return
 	 */
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
@@ -93,6 +93,7 @@ class ComponentScanAnnotationParser {
 		//beanName生成器
 		Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
 		boolean useInheritedGenerator = (BeanNameGenerator.class == generatorClass);
+		//设置BeanName生成器
 		scanner.setBeanNameGenerator(useInheritedGenerator ? this.beanNameGenerator :
 				BeanUtils.instantiateClass(generatorClass));
 
@@ -137,7 +138,7 @@ class ComponentScanAnnotationParser {
 		if (basePackages.isEmpty()) {
 			basePackages.add(ClassUtils.getPackageName(declaringClass));
 		}
-
+		//添加排除的条件，目的是不添加当前配置类
 		scanner.addExcludeFilter(new AbstractTypeHierarchyTraversingFilter(false, false) {
 			@Override
 			protected boolean matchClassName(String className) {

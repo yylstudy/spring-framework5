@@ -71,20 +71,6 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 	 * RequestParamMethodArgumentResolver
 	 * ServletModelAttributeMethodProcessor
 	 *
-	 * RequestParamMethodArgumentResolver
-	 * RequestParamMapMethodArgumentResolver
-	 * PathVariableMethodArgumentResolver
-	 * PathVariableMapMethodArgumentResolver
-	 * MatrixVariableMethodArgumentResolver
-	 * MatrixVariableMapMethodArgumentResolver
-	 * ExpressionValueMethodArgumentResolver
-	 * SessionAttributeMethodArgumentResolver
-	 * RequestAttributeMethodArgumentResolver
-	 * ServletRequestMethodArgumentResolver
-	 * ServletResponseMethodArgumentResolver
-	 * 自定义的参数解析器
-	 * RequestParamMethodArgumentResolver
-	 *
 	 *
 	 * 可以看到这里面有重复的，但是重复的参数不同，导致结果不同
 	 */

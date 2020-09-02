@@ -47,7 +47,10 @@ public abstract class PropertiesLoaderSupport {
 	protected Properties[] localProperties;
 
 	protected boolean localOverride = false;
-
+	/**
+	 * properties文件路径，这个是通过创建PropertySourcesPlaceholderConfigurer的GenericBeanDefinition
+	 * 设置其PropertyValues对象来完成的
+	 */
 	@Nullable
 	private Resource[] locations;
 
@@ -189,6 +192,7 @@ public abstract class PropertiesLoaderSupport {
 					logger.debug("Loading properties file from " + location);
 				}
 				try {
+					//填充properties文件的键值对到Properties对象中
 					PropertiesLoaderUtils.fillProperties(
 							props, new EncodedResource(location, this.fileEncoding), this.propertiesPersister);
 				}

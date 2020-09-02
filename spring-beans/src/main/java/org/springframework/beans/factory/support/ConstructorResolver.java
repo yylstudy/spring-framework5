@@ -755,6 +755,7 @@ class ConstructorResolver {
 		TypeConverter converter = (customConverter != null ? customConverter : bw);
 		//创建一个ArgumentHolder对象
 		ArgumentsHolder args = new ArgumentsHolder(paramTypes.length);
+		//已经使用过的ValueHolder的集合
 		Set<ConstructorArgumentValues.ValueHolder> usedValueHolders = new HashSet<>(paramTypes.length);
 		Set<String> autowiredBeanNames = new LinkedHashSet<>(4);
 		//遍历参数类型数组
@@ -799,6 +800,7 @@ class ConstructorResolver {
 										ObjectUtils.nullSafeClassName(valueHolder.getValue()) +
 										"] to required type [" + paramType.getName() + "]: " + ex.getMessage());
 					}
+					//获取未解析前的ValueHolder
 					Object sourceHolder = valueHolder.getSource();
 					if (sourceHolder instanceof ConstructorArgumentValues.ValueHolder) {
 						Object sourceValue = ((ConstructorArgumentValues.ValueHolder) sourceHolder).getValue();
@@ -951,14 +953,16 @@ class ConstructorResolver {
 		 */
 		public final Object[] rawArguments;
 		/**
-		 * 转换后的值数组
+		 * 转换后的值数组 这里的转换主要是类型转化等
 		 */
 		public final Object[] arguments;
 		/**
-		 * 参数解析前的值（如RuntimeBeanReference等）
+		 * 未解析前的ValueHolder（RuntimeBeanReference、BeanDefinition）等
 		 */
 		public final Object[] preparedArguments;
-
+		/**
+		 * 是否已经解析
+		 */
 		public boolean resolveNecessary = false;
 
 		public ArgumentsHolder(int size) {

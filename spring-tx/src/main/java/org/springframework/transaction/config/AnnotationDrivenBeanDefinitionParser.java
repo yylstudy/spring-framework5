@@ -73,7 +73,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 			registerTransactionAspect(element, parserContext);
 		}
 		else {
-			// mode="proxy"
+			// 默认是proxy
 			//配置基于proxy的事务代理
 			AopAutoProxyConfigurer.configureAutoProxyCreator(element, parserContext);
 		}

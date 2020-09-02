@@ -131,7 +131,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	/** Whether to automatically try to resolve circular references between beans */
 	/**
-	 * 是否允许循环依赖
+	 * 是否允许循环依赖 默认为true
 	 */
 	private boolean allowCircularReferences = true;
 
@@ -701,6 +701,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * (also signals that the returned {@code Class} will never be exposed to application code)
 	 * @return the type for the bean if determinable, or {@code null} otherwise
 	 */
+	/**
+	 * 推断class类型
+	 * @param beanName
+	 * @param mbd
+	 * @param typesToMatch
+	 * @return
+	 */
 	@Nullable
 	protected Class<?> determineTargetType(String beanName, RootBeanDefinition mbd, Class<?>... typesToMatch) {
 		Class<?> targetType = mbd.getTargetType();
@@ -1086,6 +1093,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
 			// Make sure bean class is actually resolved at this point.
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+				//推断class类型
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
@@ -1184,7 +1192,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		//从BeanPostProcessor中确定构造器，这个主要处理@LookUp注解
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
-		//beanDefinition存在构造参数，则使用构造器注入
+		//beanDefinition存在构造参数、自动注入为构造注入（@Bean等），则使用构造器注入
 		if (ctors != null ||
 				mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_CONSTRUCTOR ||
 				mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args))  {
@@ -1381,12 +1389,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
-		//处理bean的autowire类型，一般不配置
+		//处理bean的autowire类型，默认一般不配置 mybatis扫描器扫描dao生成代理bean的时候
+		//默认是RootBeanDefinition.AUTOWIRE_BY_TYPE 具体可看spring-mybatis源码
 		if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_NAME ||
 				mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_TYPE) {
 			//创建一个MutablePropertyValue对象，这个对象是针对于自动装配的
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
-			//byName自动注入
+			//byName自动注入 获取bean的所有属性值，根据属性值从spring 容器中获取对应的bean
+			//将这个映射添加到PropertyValues中
 			if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_NAME) {
 				autowireByName(beanName, mbd, bw, newPvs);
 			}
@@ -1670,7 +1680,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		MutablePropertyValues mpvs = null;
 		List<PropertyValue> original;
-		//存在自动装配
+		//存在xml形式的property
 		if (pvs instanceof MutablePropertyValues) {
 			mpvs = (MutablePropertyValues) pvs;
 			if (mpvs.isConverted()) {
@@ -1825,6 +1835,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
 			//实例化bean的后置操作，获取AOP对象的入口
+			//@Repository注解也是在这里解析的
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 

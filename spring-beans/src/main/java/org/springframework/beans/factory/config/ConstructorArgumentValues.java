@@ -444,6 +444,7 @@ public class ConstructorArgumentValues {
 	public static class ValueHolder implements BeanMetadataElement {
 		/**
 		 * constructor-arg或者property标签对应的值
+		 * RuntimeBeanDefinition、TypedStringValue、BeanDefinitionFolder等
 		 */
 		@Nullable
 		private Object value;

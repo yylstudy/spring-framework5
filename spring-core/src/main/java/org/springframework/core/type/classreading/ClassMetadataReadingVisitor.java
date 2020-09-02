@@ -32,9 +32,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * ASM class visitor which looks only for the class name and implemented types,
- * exposing them through the {@link org.springframework.core.type.ClassMetadata}
- * interface.
+ * @Component 注解类经过spring asm解析的属性类
  *
  * @author Rod Johnson
  * @author Costin Leau

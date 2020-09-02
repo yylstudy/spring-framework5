@@ -230,7 +230,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 			// We know these methods exist with the same name on each object,
 			// but need to invoke them reflectively as there isn't a common interface.
 			try {
-				//解析表达式
+				//解析表达式，也就是获取注解方法的值 value方法和pointcut的值取其一 优先取value方法的值
 				this.pointcutExpression = resolveExpression(annotation);
 				this.argumentNames = (String) annotation.getClass().getMethod("argNames").invoke(annotation);
 			}

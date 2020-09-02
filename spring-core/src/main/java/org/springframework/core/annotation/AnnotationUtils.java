@@ -134,7 +134,7 @@ public abstract class AnnotationUtils {
 	private static final Map<Class<? extends Annotation>, Boolean> synthesizableCache =
 			new ConcurrentReferenceHashMap<>(256);
 	/**
-	 * 注解别名缓存
+	 * 注解的class和其 （存在@AliasFor注解的方法名和其@AliasFor值的映射）
 	 */
 	private static final Map<Class<? extends Annotation>, Map<String, List<String>>> attributeAliasesCache =
 			new ConcurrentReferenceHashMap<>(256);
@@ -1334,24 +1334,30 @@ public abstract class AnnotationUtils {
 
 		if (!attributes.validated) {
 			// Validate @AliasFor configuration
-			//获取注解方法名和其上@AliasFor上value或者attribute方法的值的映射集合
+			//获取注解方法名和其上@AliasFor的值的映射
 			Map<String, List<String>> aliasMap = getAttributeAliasMap(annotationType);
 			aliasMap.forEach((attributeName, aliasedAttributeNames) -> {
 				if (valuesAlreadyReplaced.contains(attributeName)) {
 					return;
 				}
+				//获取注解方法的值
 				Object value = attributes.get(attributeName);
+				//值不为空并且不是默认值
 				boolean valuePresent = (value != null && !(value instanceof DefaultValueHolder));
+				//遍历注解方法上的@AliasFor注解的值，一般只有一个
 				for (String aliasedAttributeName : aliasedAttributeNames) {
 					if (valuesAlreadyReplaced.contains(aliasedAttributeName)) {
 						continue;
 					}
+					//获取AliasFor注解的值所对应的的方法的值
 					Object aliasedValue = attributes.get(aliasedAttributeName);
 					boolean aliasPresent = (aliasedValue != null && !(aliasedValue instanceof DefaultValueHolder));
 					// Something to validate or replace with an alias?
 					if (valuePresent || aliasPresent) {
+						//两个都存在值，并且都不是默认值
 						if (valuePresent && aliasPresent) {
 							// Since annotation attributes can be arrays, we must use ObjectUtils.nullSafeEquals().
+							//@AliasFor成对的方法值不同
 							if (!ObjectUtils.nullSafeEquals(value, aliasedValue)) {
 								String elementAsString =
 										(annotatedElement != null ? annotatedElement.toString() : "unknown element");
@@ -1363,14 +1369,16 @@ public abstract class AnnotationUtils {
 										ObjectUtils.nullSafeToString(aliasedValue)));
 							}
 						}
+						//只存在一个，那么将另一个方法的值也设置成有值的方法的那个值
 						else if (aliasPresent) {
 							// Replace value with aliasedValue
 							attributes.put(attributeName,
+									//适配成对应的值
 									adaptValue(annotatedElement, aliasedValue, classValuesAsString, nestedAnnotationsAsMap));
 							valuesAlreadyReplaced.add(attributeName);
 						}
 						else {
-							// Replace aliasedValue with value
+							// //只存在一个，那么将另一个方法的值也设置成有值的方法的那个值
 							attributes.put(aliasedAttributeName,
 									adaptValue(annotatedElement, value, classValuesAsString, nestedAnnotationsAsMap));
 							valuesAlreadyReplaced.add(aliasedAttributeName);
@@ -1382,6 +1390,7 @@ public abstract class AnnotationUtils {
 		}
 
 		// Replace any remaining placeholders with actual default values
+		//将注解方法的默认值替换到AnnotationAttributes中
 		for (String attributeName : attributes.keySet()) {
 			if (valuesAlreadyReplaced.contains(attributeName)) {
 				continue;
@@ -1720,7 +1729,7 @@ public abstract class AnnotationUtils {
 		map = new LinkedHashMap<>();
 		//遍历注解中有返回值的方法
 		for (Method attribute : getAttributeMethods(annotationType)) {
-			//获取注解属性别名
+			//获取注解方法上的@AliasFor值，一般是只有一个值的List
 			List<String> aliasNames = getAttributeAliasNames(attribute);
 			if (!aliasNames.isEmpty()) {
 				map.put(attribute.getName(), aliasNames);
@@ -1807,8 +1816,8 @@ public abstract class AnnotationUtils {
 	 * @see #getAttributeOverrideName(Method, Class)
 	 */
 	/**
-	 * 获取注解方法属性别名 也就是@AliasFor注解
-	 * @param attribute
+	 * 获取注解方法属性别名 也就是@AliasFor注解的值
+	 * @param attribute 注解中的方法
 	 * @return
 	 */
 	static List<String> getAttributeAliasNames(Method attribute) {
@@ -2131,7 +2140,7 @@ public abstract class AnnotationUtils {
 		 */
 		private final Method sourceAttribute;
 		/**
-		 * @AliasFor注解 所在的class类型
+		 * @AliasFor注解 所在的注解类
 		 */
 		private final Class<? extends Annotation> sourceAnnotationType;
 		/**
@@ -2139,7 +2148,7 @@ public abstract class AnnotationUtils {
 		 */
 		private final String sourceAttributeName;
 		/**
-		 * 注解方法上的@AliasFor注解锁标识的方法名
+		 * 注解 @AliasFor 的值所对应的方法
 		 */
 		private final Method aliasedAttribute;
 		/**
@@ -2147,23 +2156,18 @@ public abstract class AnnotationUtils {
 		 */
 		private final Class<? extends Annotation> aliasedAnnotationType;
 		/**
-		 * @AliasFor注解的属性名，attribute或者value的值（二者只能选其一）
+		 * @AliasFor注解的值，attribute或者value的值（二者只能选其一）
 		 */
 		private final String aliasedAttributeName;
 		/**
-		 *true
+		 *默认情况下为true
 		 */
 		private final boolean isAliasPair;
 
 		/**
-		 * Create an {@code AliasDescriptor} <em>from</em> the declaration
-		 * of {@code @AliasFor} on the supplied annotation attribute and
-		 * validate the configuration of {@code @AliasFor}.
-		 * @param attribute the annotation attribute that is annotated with
-		 * {@code @AliasFor}
-		 * @return an alias descriptor, or {@code null} if the attribute
-		 * is not annotated with {@code @AliasFor}
-		 * @see #validateAgainst
+		 *
+		 * @param attribute 注解中的方法
+		 * @return
 		 */
 		@Nullable
 		public static AliasDescriptor from(Method attribute) {
@@ -2171,21 +2175,27 @@ public abstract class AnnotationUtils {
 			if (descriptor != null) {
 				return descriptor;
 			}
-
+			//注解的方法上的@AliasFor对象
 			AliasFor aliasFor = attribute.getAnnotation(AliasFor.class);
 			if (aliasFor == null) {
 				return null;
 			}
 			//创建一个AliasDescriptor
 			descriptor = new AliasDescriptor(attribute, aliasFor);
+			//@AliasFor注解的方法校验
 			descriptor.validate();
 			aliasDescriptorCache.put(attribute, descriptor);
 			return descriptor;
 		}
 
+		/**
+		 * 创建一个AliasDescriptor
+		 * @param sourceAttribute 注解上的方法
+		 * @param aliasFor 注解上的方法上的@AliasFor注解
+		 */
 		@SuppressWarnings("unchecked")
 		private AliasDescriptor(Method sourceAttribute, AliasFor aliasFor) {
-			//注解@AliasFor的class类型
+			//注解@AliasFor的class类型（比如@ComponentScan）
 			Class<?> declaringClass = sourceAttribute.getDeclaringClass();
 
 			this.sourceAttribute = sourceAttribute;
@@ -2194,9 +2204,10 @@ public abstract class AnnotationUtils {
 
 			this.aliasedAnnotationType = (Annotation.class == aliasFor.annotation() ?
 					this.sourceAnnotationType : aliasFor.annotation());
-			//@AliasFor注解的属性名，attribute或者value的值（二者只能选其一）
+			//@AliasFor注解的值，attribute或者value的值（二者只能选其一）
 			this.aliasedAttributeName = getAliasedAttributeName(aliasFor, sourceAttribute);
 			if (this.aliasedAnnotationType == this.sourceAnnotationType &&
+					//@AliasFor注解和该注解所在的方法名如果相同，则抛出异常
 					this.aliasedAttributeName.equals(this.sourceAttributeName)) {
 				String msg = String.format("@AliasFor declaration on attribute '%s' in annotation [%s] points to " +
 						"itself. Specify 'annotation' to point to a same-named attribute on a meta-annotation.",
@@ -2217,6 +2228,9 @@ public abstract class AnnotationUtils {
 			this.isAliasPair = (this.sourceAnnotationType == this.aliasedAnnotationType);
 		}
 
+		/**
+		 * AliasFor注解的方法校验
+		 */
 		private void validate() {
 			// Target annotation is not meta-present?
 			if (!this.isAliasPair && !isAnnotationMetaPresent(this.sourceAnnotationType, this.aliasedAnnotationType)) {
@@ -2228,14 +2242,16 @@ public abstract class AnnotationUtils {
 			}
 
 			if (this.isAliasPair) {
+				//注解 @AliasFor 的值所对应的方法上的AliasFor注解
 				AliasFor mirrorAliasFor = this.aliasedAttribute.getAnnotation(AliasFor.class);
 				if (mirrorAliasFor == null) {
 					String msg = String.format("Attribute '%s' in annotation [%s] must be declared as an @AliasFor [%s].",
 							this.aliasedAttributeName, this.sourceAnnotationType.getName(), this.sourceAttributeName);
 					throw new AnnotationConfigurationException(msg);
 				}
-
+				//注解 @AliasFor 的值所对应的方法上的AliasFor注解的值
 				String mirrorAliasedAttributeName = getAliasedAttributeName(mirrorAliasFor, this.aliasedAttribute);
+				//@AliasFor不是成对出现
 				if (!this.sourceAttributeName.equals(mirrorAliasedAttributeName)) {
 					String msg = String.format("Attribute '%s' in annotation [%s] must be declared as an @AliasFor [%s], not [%s].",
 							this.aliasedAttributeName, this.sourceAnnotationType.getName(), this.sourceAttributeName,
@@ -2246,6 +2262,7 @@ public abstract class AnnotationUtils {
 
 			Class<?> returnType = this.sourceAttribute.getReturnType();
 			Class<?> aliasedReturnType = this.aliasedAttribute.getReturnType();
+			//@AliasFor注解成对的方法的返回类型不同
 			if (returnType != aliasedReturnType &&
 					(!aliasedReturnType.isArray() || returnType != aliasedReturnType.getComponentType())) {
 				String msg = String.format("Misconfigured aliases: attribute '%s' in annotation [%s] " +
@@ -2256,10 +2273,15 @@ public abstract class AnnotationUtils {
 			}
 
 			if (this.isAliasPair) {
+				//校验默认值 默认值也要相同
 				validateDefaultValueConfiguration(this.aliasedAttribute);
 			}
 		}
 
+		/**
+		 * 校验@AliasFor注解的默认值 默认值也要相同
+		 * @param aliasedAttribute
+		 */
 		private void validateDefaultValueConfiguration(Method aliasedAttribute) {
 			Object defaultValue = this.sourceAttribute.getDefaultValue();
 			Object aliasedDefaultValue = aliasedAttribute.getDefaultValue();
@@ -2388,6 +2410,13 @@ public abstract class AnnotationUtils {
 		 * @return the name of the aliased attribute (never {@code null} or empty)
 		 * @throws AnnotationConfigurationException if invalid configuration of
 		 * {@code @AliasFor} is detected
+		 */
+		/**
+		 * 获取@AliasFor注解的值，因为@AliasFor注解的attribute和value方法也使用了@AliasFor注解
+		 * 所以 这个方法只能一个有值
+		 * @param aliasFor
+		 * @param attribute
+		 * @return
 		 */
 		private String getAliasedAttributeName(AliasFor aliasFor, Method attribute) {
 			String attributeName = aliasFor.attribute();

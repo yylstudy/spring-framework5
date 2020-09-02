@@ -223,6 +223,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	 */
 	protected boolean isQualifier(Class<? extends Annotation> annotationType) {
 		for (Class<? extends Annotation> qualifierType : this.qualifierTypes) {
+			//当前注解就是或者包含@Qualifier
 			if (annotationType.equals(qualifierType) || annotationType.isAnnotationPresent(qualifierType)) {
 				return true;
 			}

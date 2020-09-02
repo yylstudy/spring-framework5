@@ -16,20 +16,9 @@
 
 package org.springframework.aop.framework.autoproxy;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.aopalliance.aop.Advice;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.TargetSource;
@@ -50,6 +39,16 @@ import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostP
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link org.springframework.beans.factory.config.BeanPostProcessor} implementation
@@ -78,7 +77,6 @@ import org.springframework.util.StringUtils;
  * a custom target source: for example, to pool prototype objects. Auto-proxying will
  * occur even if there is no advice, as long as a TargetSourceCreator specifies a custom
  * {@link org.springframework.aop.TargetSource}. If there are no TargetSourceCreators set,
- * or if none matches, a {@link org.springframework.aop.target.SingletonTargetSource}
  * will be used by default to wrap the target bean instance.
  *
  * @author Juergen Hoeller
@@ -133,12 +131,14 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	private BeanFactory beanFactory;
 
 	private final Set<String> targetSourcedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
-
+	/**
+	 * 提前曝光的Bean的实例
+	 */
 	private final Set<Object> earlyProxyReferences = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
 	private final Map<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
 	/**
-	 * bean是否需要代理的缓存
+	 * bean是否需要代理的缓存 基础设施类或者拥有@Aspect注解 就跳过
 	 */
 	private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
 
@@ -489,7 +489,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		proxyFactory.copyFrom(this);
 		//若不设置代理目标类
 		if (!proxyFactory.isProxyTargetClass()) {
-			//是否代理目标类
+			//是否代理目标类，full模式下为true也就是被@Configuration修饰的bean为true
 			if (shouldProxyTargetClass(beanClass, beanName)) {
 				proxyFactory.setProxyTargetClass(true);
 			}

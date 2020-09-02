@@ -443,6 +443,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
+			//查找classpath*:basepackage/**/*.class文件
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
@@ -456,7 +457,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 					try {
 						//获取SimpleMetadataReader
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
-						//是否匹配过滤条件
+						//是否匹配过滤条件，是否包含查找的注解、conditional校验通过等
 						if (isCandidateComponent(metadataReader)) {
 							//创建一个ScannedGenericBeanDefinition
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
@@ -525,6 +526,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * @throws IOException
 	 */
 	protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException {
+		//先查询不在exclude中的
 		for (TypeFilter tf : this.excludeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return false;

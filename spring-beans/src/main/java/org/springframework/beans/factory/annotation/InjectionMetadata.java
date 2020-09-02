@@ -59,7 +59,7 @@ public class InjectionMetadata {
 	 */
 	private final Collection<InjectedElement> injectedElements;
 	/**
-	 * 已经注册到BeanDefinition的 拥有的@Autowired和@Value或者@Resource的属性或者方法 的InjectedElement对象集合
+	 * 已经注册到RootBeanDefinition的 拥有的@Autowired和@Value或者@Resource的属性或者方法 的InjectedElement对象集合
 	 */
 	@Nullable
 	private volatile Set<InjectedElement> checkedElements;

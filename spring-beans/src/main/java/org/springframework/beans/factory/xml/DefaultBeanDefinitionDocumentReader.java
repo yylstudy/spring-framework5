@@ -141,8 +141,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// this behavior emulates a stack of delegates without actually necessitating one.
 		BeanDefinitionParserDelegate parent = this.delegate;
 		//创建一个委托器
+		//主要根据<beans/>标签对DocumentDefaultsDefinition进行赋值
+		//DocumentDefaultsDefinition定义了BeanDefinition的默认情况下的赋值
 		this.delegate = createDelegate(getReaderContext(), root, parent);
-		//是否是默认的命名空间 也就是默认标签
+		//是否是http://www.springframework.org/schema/beans定义的标签
 		if (this.delegate.isDefaultNamespace(root)) {
 			//获取beans上的profile属性值
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
@@ -179,7 +181,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			XmlReaderContext readerContext, Element root, @Nullable BeanDefinitionParserDelegate parentDelegate) {
 		//创建一个BeanDefinition解析委托器
 		BeanDefinitionParserDelegate delegate = new BeanDefinitionParserDelegate(readerContext);
-		//委托器默认初始化
+		//委托器默认初始化 主要就是对DocumentDefaultsDefinition进行赋值
+		//DocumentDefaultsDefinition定义了BeanDefinition的默认情况下的赋值
 		delegate.initDefaults(root, parentDelegate);
 		return delegate;
 	}
@@ -191,7 +194,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * @param root the DOM root element of the document
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
-		//root是否是默认标签
+		//是http://www.springframework.org/schema/beans定义的标签
 		if (delegate.isDefaultNamespace(root)) {
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {

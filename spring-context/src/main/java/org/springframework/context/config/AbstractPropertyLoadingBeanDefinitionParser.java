@@ -39,12 +39,20 @@ abstract class AbstractPropertyLoadingBeanDefinitionParser extends AbstractSingl
 		return true;
 	}
 
+	/**
+	 * 解析<context:property-placeholder>标签到对应的BeanDefinition属性中
+	 * @param element the XML element being parsed
+	 * @param parserContext the object encapsulating the current state of the parsing process
+	 * @param builder used to define the {@code BeanDefinition}
+	 */
 	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+		//获取properties文件路径
 		String location = element.getAttribute("location");
 		if (StringUtils.hasLength(location)) {
 			location = parserContext.getReaderContext().getEnvironment().resolvePlaceholders(location);
 			String[] locations = StringUtils.commaDelimitedListToStringArray(location);
+			//设置PropertySourcesPlaceholderConfigurer的locations属性
 			builder.addPropertyValue("locations", locations);
 		}
 

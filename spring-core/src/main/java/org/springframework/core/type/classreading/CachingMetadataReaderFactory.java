@@ -43,7 +43,8 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
 	/** MetadataReader cache: either local or shared at the ResourceLoader level */
 	/**
 	 * 元数据读取器缓存  LocalResourceCache
-	 * Resource --->SimpleMetadataReader的映射集合
+	 * Resource --->SimpleMetadataReader的映射集合 SimpleMetadataReader包含spring扫描类经过
+	 * spring ams解析的元数据对象
 	 */
 	@Nullable
 	private Map<Resource, MetadataReader> metadataReaderCache;
@@ -125,9 +126,8 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
 	 */
 	@Override
 	public MetadataReader getMetadataReader(Resource resource) throws IOException {
-		//LocalResourceCache是个LinkedHashMap
+		//LocalResourceCache是个ConcurrentHashMap
 		if (this.metadataReaderCache instanceof ConcurrentMap) {
-			// No synchronization necessary...
 			MetadataReader metadataReader = this.metadataReaderCache.get(resource);
 			if (metadataReader == null) {
 				metadataReader = super.getMetadataReader(resource);
@@ -135,12 +135,11 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
 			}
 			return metadataReader;
 		}
-		//缓存元数据读取器
 		else if (this.metadataReaderCache != null) {
 			synchronized (this.metadataReaderCache) {
 				MetadataReader metadataReader = this.metadataReaderCache.get(resource);
 				if (metadataReader == null) {
-					//获取元数据读取器
+					//获取SimpleMetadataReader
 					metadataReader = super.getMetadataReader(resource);
 					this.metadataReaderCache.put(resource, metadataReader);
 				}

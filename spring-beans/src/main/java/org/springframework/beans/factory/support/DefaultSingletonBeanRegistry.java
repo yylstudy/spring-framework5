@@ -644,6 +644,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 
 		// Actually destroy the bean now...
+		//这个是拥有disposableBean的子类或者AutoClose接口或者拥有@PreDestory注解的实例bean的映射集合
+		//这里会调用其destory方法
 		if (bean != null) {
 			try {
 				bean.destroy();

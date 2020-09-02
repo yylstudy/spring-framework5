@@ -29,7 +29,9 @@ import org.aopalliance.aop.Advice;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractGenericPointcutAdvisor extends AbstractPointcutAdvisor {
-
+	/**
+	 * ExposeInvocationInterceptor
+	 */
 	private Advice advice = EMPTY_ADVICE;
 
 

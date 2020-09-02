@@ -353,7 +353,7 @@ public class BeanDefinitionParserDelegate {
 		//这个不定义是default，这是因为在beans mxl标签定义中设置了默认值为default
 		String autowire = root.getAttribute(DEFAULT_AUTOWIRE_ATTRIBUTE);
 		if (DEFAULT_VALUE.equals(autowire)) {
-			// Potentially inherited from outer <beans> sections, otherwise falling back to 'no'.
+			// 所以默认情况下 是不进行自动注入的
 			autowire = (parentDefaults != null ? parentDefaults.getAutowire() : AUTOWIRE_NO_VALUE);
 		}
 		defaults.setAutowire(autowire);
@@ -425,9 +425,9 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * 将xml标签节点解析成BeanDefinition
-	 * Parses the supplied {@code <bean>} element. May return {@code null}
-	 * if there were errors during parse. Errors are reported to the
-	 * {@link org.springframework.beans.factory.parsing.ProblemReporter}.
+	 * @param ele 当前Bean标签的Element对象
+	 * @param containingBean 外层bean的BeanDefinition
+	 * @return
 	 */
 	@Nullable
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
@@ -545,6 +545,9 @@ public class BeanDefinitionParserDelegate {
 		if (ele.hasAttribute(CLASS_ATTRIBUTE)) {
 			className = ele.getAttribute(CLASS_ATTRIBUTE).trim();
 		}
+		//parent属性主要用于继承父类的一些公共配资，例如多个datasource配置
+		//只有用户名、密码不一样，可以配置一个公共的parent的bean，并且 可以设置其属性abstract为true，
+		//表示不将其初始化
 		String parent = null;
 		if (ele.hasAttribute(PARENT_ATTRIBUTE)) {
 			parent = ele.getAttribute(PARENT_ATTRIBUTE);
@@ -568,7 +571,7 @@ public class BeanDefinitionParserDelegate {
 			parsePropertyElements(ele, bd);
 			//解析qualifier
 			parseQualifierElements(ele, bd);
-
+			//设置资源文件
 			bd.setResource(this.readerContext.getResource());
 			bd.setSource(extractSource(ele));
 
@@ -671,10 +674,11 @@ public class BeanDefinitionParserDelegate {
 			bd.setDestroyMethodName(this.defaults.getDestroyMethod());
 			bd.setEnforceDestroyMethod(false);
 		}
-
+		//设置factory-method属性
 		if (ele.hasAttribute(FACTORY_METHOD_ATTRIBUTE)) {
 			bd.setFactoryMethodName(ele.getAttribute(FACTORY_METHOD_ATTRIBUTE));
 		}
+		//设置factory-bean属性
 		if (ele.hasAttribute(FACTORY_BEAN_ATTRIBUTE)) {
 			bd.setFactoryBeanName(ele.getAttribute(FACTORY_BEAN_ATTRIBUTE));
 		}
@@ -974,7 +978,7 @@ public class BeanDefinitionParserDelegate {
 	/**
 	 * 解析获取属性值，constructor-arg标签或者property标签的解析
 	 * @param ele constructor-arg 标签
-	 * @param bd
+	 * @param bd 父的BeanDefinnition
 	 * @param propertyName
 	 * @return
 	 */
@@ -989,7 +993,7 @@ public class BeanDefinitionParserDelegate {
 		Element subElement = null;
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
-			//不包含description标签和meta标签
+			//constructor-arg标签下不包含description标签和meta标签的子标签只能有一个
 			if (node instanceof Element && !nodeNameEquals(node, DESCRIPTION_ELEMENT) &&
 					!nodeNameEquals(node, META_ELEMENT)) {
 				// Child element is what we're looking for.
@@ -1023,7 +1027,9 @@ public class BeanDefinitionParserDelegate {
 		}
 		//直接指向值
 		else if (hasValueAttribute) {
-			//创建一个TypedStringValue
+			//创建一个TypedStringValue，注意这里并没有解析${}
+			//这个是在bean初始化的时候做的，为什么不在现在做呢，这是因为，property-placeholder和@PropertySource的解析
+			//都可能在此表达式后
 			TypedStringValue valueHolder = new TypedStringValue(ele.getAttribute(VALUE_ATTRIBUTE));
 			valueHolder.setSource(extractSource(ele));
 			return valueHolder;

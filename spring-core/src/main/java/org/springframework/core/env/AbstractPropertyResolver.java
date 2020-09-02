@@ -46,7 +46,9 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	 */
 	@Nullable
 	private volatile ConfigurableConversionService conversionService;
-
+	/**
+	 *属性占位符帮助器
+	 */
 	@Nullable
 	private PropertyPlaceholderHelper nonStrictHelper;
 
@@ -62,7 +64,9 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	 * 占位符后缀
 	 */
 	private String placeholderSuffix = SystemPropertyUtils.PLACEHOLDER_SUFFIX;
-
+	/**
+	 * 默认值分隔符
+	 */
 	@Nullable
 	private String valueSeparator = SystemPropertyUtils.VALUE_SEPARATOR;
 

@@ -383,6 +383,7 @@ class BeanDefinitionValueResolver {
 				bean = this.beanFactory.getParentBeanFactory().getBean(refName);
 			}
 			else {
+				//从容器中获取bean
 				bean = this.beanFactory.getBean(refName);
 				//注册依赖关系
 				this.beanFactory.registerDependentBean(refName, this.beanName);
